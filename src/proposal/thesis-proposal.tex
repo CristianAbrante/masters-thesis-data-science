@@ -1,0 +1,49 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+
+\title{Master's thesis proposal}
+\author{Cristian Manuel Abrante Dorta}
+\date{July 2021}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+Cloud computing is a novel field whose usage had increased dramatically during recent years. For many businesses, including multinational companies and young startups, the possibility of externalizing IT resources to cloud providers, represents an important reduction in their operational costs. This cost reduction represents a major competitive advantage to them because they can use the resources they have available (which in case of startups might be limited) to implement the software or operations that really are part of their value proposition and reducing the infrastructure maintenance costs. \\
+
+Taking this into consideration, we can then offer a division of the different types of cloud computing business solution available. First of all, we have \textbf{SaaS} (Software as a Service), those are considered the most widespread cloud computing solution, because they are mainly focused on resolving the end-user needs. There is also \textbf{IaaS} (Infrastructure as a Service), which aim is the provision of the basic needs for running cloud applications, including hardware and virtual machines, as well as storage space. The last type of cloud applications are \textbf{PaaS} (Platform as a Service), which includes not only the technology for the creation of the cloud applications but also the operating systems and the tools for the deployment of them. \\
+
+One of the big players in the cloud computing sector is Google Cloud. The cloud infrastructure provided by Google offers services that can be categorized as IaaS, such as storage space and basic server capabilities, and also PaaS, with elements for advanced deployment and orchestration of web applications and services (such as Google Kubernetes Engine). \\
+
+One of the most interesting PaaS applications offered in Google cloud infrastructure is BigQuery. BigQuery is a serverless and self managed data warehouse application. This application is able to ingest the data provided by our own applications and can scale easily even to petabytes size. Also, it is easy to interact with, as it supports standard SQL language as well as easy integration via APIs. Even though it is relatively recent (it was launched in 2010), this technology offers impressive capabilities and can be used with many purposes.\\
+
+\section{Expected outcomes}
+
+The expected outcome of this project is the creation of an application that can monitor the errors that had been occuring in one service deployed in the Google Cloud infrastructure. The service which errors are going to be monitored is the \textbf{Unity Services Gateway}. This gateway is the entry point of all the public and private services that are used on the advertisers side in the Unity Ads Network.\\
+
+The purpose of the Unity Services Gateway is providing common functionalities related to the authentication and handling of different errors of the queries sent to the advertisers services. Having an entry point for all this services is an important advantage because those functionalities do not have to be re-implemented by each of the services and there can be a single source of truth for this purpose. \\
+
+The main problem with this approach is that as the errors are handled by a single service they never reach the expected final service to which the target was directed to. This causes that the owners of those internal services can not monitor in a simple way the errors that there has been directed to their services. This is why the creation of a monitoring tool is something that could bring a lot of value as an internal tool for the teams responsible of monitoring the state of their services.\\
+
+For the creation of the monitoring application those technologies are going to be used:
+
+\begin{itemize}
+    \item \textbf{BigQuery}: Due to the high volume of queries that the gateway handles and the possible amount of errors that can occur in those, it makes sense to use an storage platform that can be scaled to high volumes of data and that can be accessed easily.
+    \item \textbf{NodeJS}: The service is written in Javascript and it is using Node.js, so this language and this technology is going to be used for doing the correspondent modifications to it.
+    \item \textbf{Grafana}: Grafana is a tool for data visualization and monitoring, it is the standard used in the company so it is going to be used for creating meaningful visualizations for the error events.
+\end{itemize}
+
+Taking into consideration the technologies that are going to be used we can create a predefined plan and define the expected outcomes of the project:
+
+\begin{itemize}
+    \item Define the structure of the events that are going to be stored in the database. For the proof of concept, the rate limiting error can be used, but this can also be extended to other types of errors in the future.
+    \item Add the necessary tables that will contain the events to BigQuery.
+    \item Add the functionality of logging the results into BigQuery to the gateway.
+    \item Connect Grafana to BigQuery in order to enable error visualization.
+\end{itemize}
+
+It is important to remark that this can be considered an iterative process, because as  are developing a software tool, maybe new needs come from different teams or there are some concerns about things that can be improved, so it is important to say that the final result is going to be the result of iterating over the solution.
+
+\end{document}
