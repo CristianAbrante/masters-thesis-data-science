@@ -1,5 +1,6 @@
 \documentclass[12pt]{article}
 \usepackage[utf8]{inputenc}
+\usepackage{graphicx}
 
 \title{Master's thesis proposal}
 \author{Cristian Manuel Abrante Dorta}
@@ -11,21 +12,30 @@
 
 \section{Introduction}
 
-Cloud computing is a novel field whose usage had increased dramatically during recent years. For many businesses, including multinational companies and young startups, the possibility of externalizing IT resources to cloud providers, represents an important reduction in their operational costs. This cost reduction represents a major competitive advantage to them because they can use the resources they have available (which in case of startups might be limited) to implement the software or operations that really are part of their value proposition and reducing the infrastructure maintenance costs. \\
+Cloud computing is a novel field whose usage had increased dramatically during recent years. For many businesses, including multinational companies and young startups, the possibility of externalizing IT resources to cloud providers, represents an important reduction in their operational costs. This cost reduction represents a major competitive advantage to them because they can use the resources they have available (which in case of startups might be limited) to implement the software or operations that really are part of their value proposition and reducing the infrastructure maintenance costs.\\
 
-Taking this into consideration, we can then offer a division of the different types of cloud computing business solution available. First of all, we have \textbf{SaaS} (Software as a Service), those are considered the most widespread cloud computing solution, because they are mainly focused on resolving the end-user needs. There is also \textbf{IaaS} (Infrastructure as a Service), which aim is the provision of the basic needs for running cloud applications, including hardware and virtual machines, as well as storage space. The last type of cloud applications are \textbf{PaaS} (Platform as a Service), which includes not only the technology for the creation of the cloud applications but also the operating systems and the tools for the deployment of them. \\
+One of the big players in the cloud computing sector is Google Cloud. The cloud infrastructure provided by Google offers services that can improve the development process; such as storage space and basic server capabilities, and also elements for advanced deployment and orchestration of web applications and services, such as Google App Engine, which is perfect for deploying \textbf{applications based on microservices}.\\
 
-One of the big players in the cloud computing sector is Google Cloud. The cloud infrastructure provided by Google offers services that can be categorized as IaaS, such as storage space and basic server capabilities, and also PaaS, with elements for advanced deployment and orchestration of web applications and services (such as Google Kubernetes Engine). \\
+The microservices pattern had gained popularity during the recent years as it speeds-up the development time by dividing the responsibilities of the different \texttt{services} involved in a system, and therefore reducing the time-to-market. Also, microservices pattern allows to correctly match organizational needs, as the team division can be established depending on the services that they own.\\
 
-One of the most interesting PaaS applications offered in Google cloud infrastructure is BigQuery. BigQuery is a serverless and self managed data warehouse application. This application is able to ingest the data provided by our own applications and can scale easily even to petabytes size. Also, it is easy to interact with, as it supports standard SQL language as well as easy integration via APIs. Even though it is relatively recent (it was launched in 2010), this technology offers impressive capabilities and can be used with many purposes.\\
+There are many multinational companies that uses microservices pattern for the development of their backend services, some examples are Uber, Netflix or Unity. Considering that, most of them had adopted the necessity of creating a single entry point for all their services: an API gateway. Technically speaking, the API Gateway is just another service, whose main functionality is forwarding the queries that are sent from the external user to the corresponding microservice that can return the desired response. Apart from this, the gateway can implement some high-level responsibilities, such as rate limiting, load balancing or header enrichment.\\
+
+\section{Engineering questions}
+
+Monitoring the activity of the gateway is not an easy task, especially in big companies where the number of queries that it receive can be in the order of thousands per minute. Also the monitoring is something that is not only relevant for the gateway development team, but it is something that it is interesting for all the teams whose develop services under its umbrella.\\
+
+Taking into consideration that the premise of this thesis is working with microservices architecture applications deployed in a Google Cloud environment that had adopted an API Gateway as an entry point, the main objective is to determine which would be the optimal way of monitoring the activity of the gateway, taking into account that it receives a very intense traffic and that the results of the monitoring had to be communicated in a visual way using a cross-organization tool. In that sense, creating an effective monitoring system for the application gateway is something that can bring a lot of value for companies that have a microservices application working in high scale.\\
 
 \section{Expected outcomes}
 
-The expected outcome of this project is the creation of an application that can monitor the errors that had been occuring in one service deployed in the Google Cloud infrastructure. The service which errors are going to be monitored is the \textbf{Unity Services Gateway}. This gateway is the entry point of all the public and private services that are used on the advertisers side in the Unity Ads Network.\\
+The expected outcome of this project is the creation of an application that can monitor the errors that occurs in the \textbf{Unity Services Gateway}. This gateway is the entry point of all the public and private services that are used on the advertisers side in the Unity Ads Network.\\
 
-The purpose of the Unity Services Gateway is providing common functionalities related to the authentication and handling of different errors of the queries sent to the advertisers services. Having an entry point for all this services is an important advantage because those functionalities do not have to be re-implemented by each of the services and there can be a single source of truth for this purpose. \\
-
-The main problem with this approach is that as the errors are handled by a single service they never reach the expected final service to which the target was directed to. This causes that the owners of those internal services can not monitor in a simple way the errors that there has been directed to their services. This is why the creation of a monitoring tool is something that could bring a lot of value as an internal tool for the teams responsible of monitoring the state of their services.\\
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.4]{src/proposal/img/diagram-1.png}
+    \caption{Current setup of the unity services gateway}
+    \label{fig:my_label}
+\end{figure}
 
 For the creation of the monitoring application those technologies are going to be used:
 
