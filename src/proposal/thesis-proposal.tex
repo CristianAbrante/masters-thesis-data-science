@@ -4,7 +4,7 @@
 
 \title{Master's thesis proposal}
 \author{Cristian Manuel Abrante Dorta}
-\date{July 2021}
+\date{\today}
 
 \begin{document}
 
@@ -50,26 +50,16 @@ In order to achieve the objective, three different research questions are formul
 
 \section{Expected outcomes}
 
-Based on the research questions defined in Section \ref{sec:research-questions}, it is important to determine which procedure is planned to solve each of them, and what are the expected outcomes. It is noteworthy to clarify that all the experiments and the implementation are going to be performed in the Unity Services Gateway.\\
+Based on the research questions defined in Section \ref{sec:research-questions}, it is important to state which are the expected outcomes that are going to be produced with the thesis and which is the intended plan for producing those results and hence solve the research questions. First of all, it is important to state that all the experiments are going to be conducted using the Unity Services Gateway as an example of domain oriented architecture gateway.\\
 
-To solve \textbf{Q1}, the first step would be to identify the parties involved in the project, which preliminarily are the project managers of the developed software services and the development team, and interview them to find out what are the high-level questions related to gateway monitoring that cannot be answered with the current configuration. The expected outcomes of this are:
-
-\begin{itemize}
-    \item \textbf{Request for Comments (RFC)}: This RFC would contain an initial proposal for the error events structure, where all the involved stakeholders are going to freely comment for giving their feedback.
-    \item \textbf{Error event structure}: once the feedback for the initial proposal in the RFC had been resolved, the output would be an error event structure that will contain all the necessary information for addressing the questions of the stakeholders.
-\end{itemize}
-
-To solve \textbf{Q2}, it is crucial to establish what are the criteria for the definition of the optimal storage technology. Initially, the criteria are: the complexity of the aggregation (since the data has to be composed of different data sources), the cost per insertion, storage and access (since the data source could insert and store thousands of records) and, finally, the integration with the current technological configuration. The expected results are:
+The list of expected outcomes is:
 
 \begin{itemize}
-    \item \textbf{data source technology}: After comparing different databases (RDBMS, NO-SQL and data warehouse), a selection has to be done according to the optimal criteria stated before.
-    \item \textbf{Implementation}: Instance for the selected data source and configuration of it to store the event structure decided in \textbf{Q1}. Furthermore the logging logic has to be added to the gateway source code.
-\end{itemize}
-
-Finally, for addressing \textbf{Q3}, the objective is to solve the high-level questions from the stakeholders that were defined when solving \textbf{Q1} with the data stored and collected in \textbf{Q2}. Taking this into consideration the expected outcome will be:
-
-\begin{itemize}
-    \item \textbf{Custom Grafana dashboard}: Grafana is the chosen technology to be used in order to map the data sources with the visual representation that will easily solve the high-level questions of the stakeholders.
+    \item \textbf{Requirements analysis}: In order to determine the best way for representing the high-level errors of a domain-oriented architecture gateway, and thus addressing \textbf{Q1}, a requirements analysis is going to be performed. In order to do that, the first step would be to identify the stakeholders of the project, which preliminarily are the project managers of the developed software services and the development team, and interview them to find out what are the high-level questions related to gateway monitoring that cannot be answered with the current configuration. Using the information of those interviews, the requirement analysis is going to be produced.
+    \item \textbf{Software design}: Having the requirements analysis as a base, the next outcome would be the software design. This design will include the error events structure that will contain all the necessary information for addressing the questions of the stakeholders as well as a high level design of the software system that will address the problem.
+    \item \textbf{Data source comparison and evaluation}: To solve \textbf{Q2}, it is crucial to establish what are the criteria for the definition of the optimal storage technology. Initially, the criteria are: the complexity of the aggregation (since the data has to be composed of different data sources), the cost per insertion, storage and access (since the data source could insert and store thousands of records) and, finally, the integration with the current technological configuration. The expected outcome is the comparison between different databases (RDBMS, NO-SQL and data warehouse) in the context of the events storage.
+    \item \textbf{Prototype implementation}: having performed the software design and also having done the selection of the ideal data source for our use case, the next expected outcome would be the implementation of a prototype for the particular case of the Unity services gateway. For doing that, the source code of the gateway has to be modified in order to gather the information for the events, and there are some architectural changes that has to be done in order to store those events in the selected data source.
+    \item \textbf{Custom visualization tool (Grafana dashboard)}: In order to solve \textbf{Q3} a custom Grafana dashboard is going to be developed in order to map the data sources with the visual representation that will easily solve the high-level questions of the stakeholders.
 \end{itemize}
 
 \bibliographystyle{plain}
