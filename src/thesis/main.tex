@@ -390,25 +390,159 @@ TEM        & transverse eletromagnetic
 %%
 \section{Introduction}
 
+%% For the introduction I guess it can be mostly copied from the thesis proposal,
+%% anyway one of the last sections to write.
+
+\subsection{Contributions}
+
+% Explain the contributions introduced in that thesis.
+
+\subsection{Structure of the thesis}
+
+% Easy section, it can be mostly written now.
+
 %% Leave page number of the first page empty
-%% 
 \thispagestyle{empty}
 
-%% In a thesis, every section starts a new page, hence \clearpage
 \clearpage
-
 \section{Background}
 
-\subsection*{Subsection 1}
+%% The objective of the background section is to give a business context to explain where the problem come from.
+
+\subsection{Company description}
+
+%% Describe Unity technologies as a company.
+%% Describe Unity Acquire architecture.
+%% Describe Unity Acquire Microservices architecture.
+%% Describe Unity Services gateway and why it is needed.
+
+\subsection{Problem definition}
+
+%% Describe the problem from different angles, depending on the stakeholders involved.
+
+%% - Public APIs team: Describe that from our side the requirements is having more
+%%                     visibility in the term of the errors that are generating through
+%%                     our API calls from the engineering part of view.
+
+%% - Product management: Describe that from the product side, it is important to know the high
+%%                       level errors as they are in contact with the client, and they have to 
+%%                       contact them in case that they are doing some wrong integrations, for example
+%%                       if they hit the rate limits.
+
+%% - Security team: From their perspective it is important to set some visibility on the high level errors
+%%                  in case that some individual malicious user is doing some kind of attack to the system.
+
 
 \clearpage
-\section{Research material and methods}
+\section{Requirement analysis}
+
+%% Taking into consideration that everyone has clear who are the stakeholders and what is the structure of the
+%% company and the microservices involved, now we have to do the requirement analysis.
+
+%% We can list the project requirements like:
+
+%% - We need to do a clear definition of the errors that we want to log.
+%% - The logging technology has to support a lot of stress as we are having x (collect the number of average requests).
+%% - The provided solution has to be cloud agnostic (this is why some part has to be implemented in Terraform or using an external service).
+%% - We need a visual tool in order to communicate effectively with the stakeholders.
+
+\subsection{Research questions}
+
+%% Taking into consideration the previous requirement analysis we can state down the research questions.
 
 \clearpage
-\section{Results}
+\section{Literature review}
+
+%% In this section is where all the technologies used are reviewed. For sure having the following subsections:
+
+\subsection{Microservices architectures}
+
+%% In this section we can include the following:
+%% - Monolitical vs. microservices architectures. (drawbacks and advantages).
+%% - Definition of Domain Oriented Microservices Architecture, stressing out that this is a problem that many 
+%%   big companies are facing.
+
+\subsection{Observability & Monitoring}
+
+%% In this section we can differentiate the following topics:
+%% - Observability and Monitoring definition.
+%% - Application of observability and monitoring to microservices.
+%% - Data observability.
+%% - The four pillars of data observability (check one of the articles).
+
+\subsection{Framework comparisons}
+
+%% In this section a comparison of the current frameworks for monitoring and observability has to be done.
+%% The following can be compared:
+
+%% - Google custom monitoring & observability tools.
+%% - Datadog
+%% - Amplitude
+
+%% It is important to explain the features of all of them when monitoring microservices, also taking into consideration
+%% the costs analysis, and if they are suitable for showing the custom data that we are going to log.
 
 \clearpage
-\section{Summary} 
+\section{Technical solution}
+
+%% The outcome of this thesis are basically 4 technical solutions.
+
+\subsection{High level errors definitions}
+
+%% In this section describe the different high level errors and the standard that we are defining for them.
+%% Check out the ones defined previously by Uber gateway API.
+
+\subsection{Error schema generator} %%% OPTIONAL
+
+%% Possible Open Source tool used to generate gateway routes schema definitions using a CLI.
+%% If implemented, describe it here.
+
+\subsection{Proof of concept using error rate tool}
+
+%% The things that need to be covered here are:
+
+%% - Planning (Using AirTable and estimation)
+%% - Implementation on the gateway side. Explain that Unity currently has a logging tool enabled and we only had to log certain events gathering the requests.
+%% - Terraform implementation. This part is where it can be explained how we use terraform and how to the problem cloud-agnostic.
+%% - BigQuery setup.
+
+\subsection{Error visualization dashboard}
+
+%% Cover here the grafana dashboard implementation tool
+
+%% - Cover the usage of the Grafana + BigQuery tool.
+%% - Describe the different panels that had been developed.
+%% - Persistance of the dashboard and deployment on every build.
+
+\clearpage
+\section{Evaluation}
+
+%% The evaluation needs to be done for each of the artifacts separated:
+
+\subsection{Evaluation of the error schema generator} 
+
+%% Add the testing here if implemented.
+
+\subsection{Evaluation of the proof of concept}
+
+%% Here we can say two evaluation methods:
+%% - Test script in order to inject mock data and see if it is storing correctly the data.
+%% - Integration tests using jest on the gateway side.
+%% - Using Proof of concept in order to test how the database was doing.
+%% - Using staging and production in order to have different sources for the data.
+
+\subsection{Evaluation of the visualization tool}
+
+%% For the evaluation of the visualization tool we can explain the following:
+%% - Using mock data in order to iterate over the dashboards.
+%% - Using continuos reviews from the stakeholders. mention the API team and the gateway team.
+
+\clearpage
+\section{Conclusions}
+
+%% This part is almost the last one to write, basically write some pages of conclussions, and offer future work
+
+%% For future work basically it can be checked if there is something on the backlog.
 
 \clearpage
 \thesisbibliography
