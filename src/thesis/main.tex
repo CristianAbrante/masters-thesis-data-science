@@ -410,9 +410,12 @@ TEM        & transverse eletromagnetic
 %% Leave page number of the first page empty
 \thispagestyle{empty}
 
+\clearpage
 \section{Background}
 
 %% The objective of the background section is to give a business context to explain where the problem come from.
+
+This section describes all the necessary background to understand the problem that this thesis seeks to address. In the first subsection, a brief introduction is made about the company and the business environment in which it operates, and in the second subsection, the problem is framed from different points of view, taking into account the various stakeholders involved.
 
 \subsection{Company description}
 
@@ -420,6 +423,87 @@ TEM        & transverse eletromagnetic
 %% Describe Unity Acquire architecture.
 %% Describe Unity Acquire Microservices architecture.
 %% Describe Unity Services gateway and why it is needed.
+
+To better understand the project, it is essential to present the company where it has been developed. This thesis is done in collaboration with Unity Technologies \cite{UnityTechnologies}, a multinational company based in the United States. The company's main product is the Unity game engine \cite{haas2014history}, an industry standard for game and 3D content development  \cite{nicoll2019unity}.\\
+
+Although the game engine is the most famous product offered by the company, it is not the only source of revenue, and it is not enough to understand its business model. This is mainly because the company's value proposition can be summarized as: \textit{"Create a platform for creators to develop, execute and monetize their content"} \cite{UnityBusinessModel}. To realize this value proposition, the company has established two organizational departments that offer various products to its users.\\
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.3]{src/thesis/img/background/unity-division.jpg}
+    \caption{Products offered in the two organizational divisions of Unity Technologies}
+    \label{fig:unity-solutions}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Create solutions}: The main functionality of this product suite is to offer a set of tools that allows users to produce all kinds of 3D content. The business model of this division consists of a subscription-based model for the different versions of the Unity Editor.
+    \item \textbf{Operate solutions}: The goal of the products categorized in this section is to enable creators to run a successful business from their 3D content. This is the organizational section that provides the company with the most revenue \cite{UnityRevenue}, and it is also the one that contains UnityAds, the product on which this thesis project was developed.
+\end{itemize}
+
+\subsubsection{UnityAds}
+
+UnityAds is one of the most outstanding products offered by the company. To understand it correctly, it is essential to clarify the concept of \textbf{online advertising network} \cite{goldfarb2011online} \cite{schmeiser2016online}. \\
+
+An advertising network is a type of business or service whose purpose is to connect advertisers, who are individuals who want to display advertisements for the products they intend to sell, with publishers, who are individuals who can provide space to place such advertisements, and who usually reach a certain level of audience. The original definition of advertisement network was really tied to newspapers, magazines, and television, but in recent years, it has been extended to online services \cite{ha2008online}. In that sense, UnityAds propose a new innovative business idea because it is an ad-hoc advertisement network for the game industry. In a nutshell, UnityAds allows game developers to show ads about their games in other games and place advertisements of other games in theirs \cite{chu2013iad}. As can be seen, by using UnityAds, the same game developer can be publisher and advertiser simultaneously, melting both roles.\\
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.4]{src/thesis/img/background/unity-ads.png}
+    \caption{Simplified structure of UnityAds}
+    \label{fig:background:unity-ads}
+\end{figure}
+
+Figure \ref{fig:background:unity-ads} shows the two aspects that make up the advertising network: \textbf{Acquire} and \textbf{Monetize}. The terms correspond to the classic definition of publisher and advertiser but translated into the gaming industry terminology.
+
+\begin{itemize}
+    \item \textbf{Monetize division}: This section includes all the tools provided to game developers to monetize their games, in addition to all the technical solutions needed to deliver an ad to the mobile game that has a publisher space.
+    \item \textbf{Acquire division}: This set of tools includes all the products that help advertisers acquire new users who can install the games they advertise on the network.
+\end{itemize}
+
+Although this overall context of UnityAds was essential to understand the big picture, only the Acquire division is considered in the following sections, as the thesis project focuses on it.
+
+\subsubsection{Acquire architecture overview}
+
+This section covers the architecture overview for the acquire division of UnityAds. It is important to note that many details of the architecture will not be explained in-depth to respect the company's privacy.\\
+
+The architecture of UnityAds has changed dramatically over the past decade. Initially, the ad network was developed by a Finnish startup, Applifier, acquired by Unity Technologies in 2014 \cite{UnityBuyApplifier}. The initial architecture of the Applifier ad network can be seen in figure \ref{fig:background:applifier-architecture}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.4]{src/thesis/img/background/applifier-unityads-architecture.png}
+    \caption{Diagram for the initial architecture of Applifier}
+    \label{fig:background:applifier-architecture}
+\end{figure}
+
+This almost \textit{monolithic architecture} \cite{de2019monolithic} impacted the startup times, as it was convenient for a small engineering team to introduce changes to it, which allowed them to achieve a solid customer base prior to the Unity acquisition \cite{ApplifierCustomers}. But when scalability started to become a fundamental requirement, there were some pain points they had to address. On the one hand, the database was the junction point between the services and the mechanism they used to communicate, which was limiting and error-prone, and on the other hand, this architecture was not suitable to be managed by a growing team of engineers. Due to this, the company started to migrate its setup into a microservices-oriented architecture (Section CITE-SECTION). This means that now the database is not the single point of communication, and each of the services would need an independent database to store the data they needed to operate. The acquire and monetize division can easily be decoupled using that paradigm, and different teams could work independently. This initiative led the company to its current situation, which can be observed in figure \ref{fig:background:acquire-architecture}.\\
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.35]{src/thesis/img/background/acquire-division.png}
+    \caption{Current architecture of Acquire division of UnityAds}
+    \label{fig:background:acquire-architecture}
+\end{figure}
+
+On this new setup, Monetization and Acquire can be considered domains on the domain-oriented service architecture of UnityAds (Section CITE-SECTION). It is also important to mention that the communication between microservices uses different protocols; for example, for the public-facing endpoints, the connection is established using HTTPS \cite{durumeric2013analysis}, and for the internal communication between the microservices in the domain, NATS \cite{srisuresh2008state} is the selected protocol, finally, between the monetization and the acquire domains, is Kafka \cite{kreps2011kafka} the chosen technology.\\
+
+One noticeable thing on the diagram is the existence of two gateways as the entry point for the public-facing endpoints. Some of the calls, like the ones provided from the client dashboard, are sent through the legacy gateway, whereas some requests, like those coming from the public APIs, use Unity Services Gateway. The purpose for the existence of two gateways can be traced back some years, while the planning phase of the current domain-oriented service architecture.\\
+
+Before the acquisition of Applifier by Unity, an initial gateway compiled some simple high-level responsibilities (Section CITE-SECTION) that were refactored to add more functionalities like rate limiting, authentication, authorization, and error handling. The legacy gateway is highly tied to the monetization environment, making it difficult to add new functionalities or address pre-existing problems. This is why a new initiative consists of creating a new project, the Unity Services Gateway, whose objective is to serve as the entry point for all the services both on the acquire and monetization domains and possibly across all the company.\\
+
+\subsubsection{Microservices monitoring}
+
+The last step to understand UnityAds architecture is to explain how microservice monitoring is done (Section CITE-SECTION). It is essential to state that all the architecture is deployed on Google Cloud \cite{aceto2013cloud}, which already offers some pre-defined tools that make life easier to operate the product.\\
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.4]{src/thesis/img/background/service-monitoring.png}
+    \caption{UnityAds microservices monitoring diagram}
+    \label{fig:background:monitoring}
+\end{figure}
+
+On figure \ref{fig:background:monitoring} it can be observed a diagram that represents the selected monitoring technologies for the Acquire architecture. As stated before, this architecture is running on a Kubernetes cluster that is deployed on Google Cloud \cite{hunter2018google}. That makes it easier to use log sinks to transfer the logs to the standard google cloud logging tool. But logging is only one of the relevant parts for monitoring, as metrics are also essential to know the overall system's health.\\
+
+In order to collect the metrics for the different microservices of the system, Prometheus \cite{turnbull2018monitoring} is the selected tool. It works by pulling relevant metrics from microservices and infrastructure, and afterward, those metrics can be accessed using its custom query language. On top of it, some Grafana dashboards \cite{hoang2020research} can be handcrafted to visualize those metrics on time series plots. This typical setup works well as it combines the possibility of exploring error logs and even tracing the endpoint calls for the microservices on a fine granularity, using standard Google Cloud tools such as the profiler \cite{thakurratan2018google}, and at the same time presents a visual representation for the metrics of the system, such as error rate, uptime or throughput, using a time-series format.\\
 
 \subsection{Problem definition}
 
@@ -437,12 +521,37 @@ TEM        & transverse eletromagnetic
 %% - Security team: From their perspective it is important to set some visibility on the high level errors
 %%                  in case that some individual malicious user is doing some kind of attack to the system.
 
+Even though the monitoring setup adopted by the Acquire unit on UnityAds works well in many cases, it has some limitations related to the monitoring of the Unity Services Gateway. First of all, it is remarkable to say that Unity Services Gateway is another microservice, so the setup represented in figure \ref{fig:background:monitoring} is enough for metrics and architecture monitoring. Nevertheless, it has some limitations for business logic monitoring \cite{von2009decision}.\\
+
+A gateway of a Domain-Oriented microservices architecture is in charge of handling some high-level responsibilities (Section CITE-SECTION). The main advantage is that those tasks are shared across microservices, so there is a single place where this logic is implemented and maintained. But also, the teams responsible for the microservices that are directly dependant on the gateway might want some visibility on the events generated by handling that logic.\\
+
+To give a concrete example for this problem, let's consider only rate-limiting responsibility \cite{raghavan2007cloud}, which is vital to prevent common attacks \cite{jhaveri2012attacks}. The gateway's commitment corresponds to automatically rejecting the requests that had tried to access the server multiple times. To do that, it has to keep a temporal database that stores the count for how many requests the user had done on a concrete time window.\\
+
+Considering this error type, different stakeholders would be interested in knowing more about the events associated with this error and that currently don't have that much information.
+
+\subsubsection*{Public APIs team}
+
+This team is responsible for developing a set of public APIs that allow advertisers to manage their advertisement campaigns programmatically. In Figure \ref{fig:background:acquire-architecture}, it can be seen that the service owned by this team serves as a proxy between the backends and the API client. Usually, those clients are third-party advertisers that have built custom integrations with UnityAds and want to run adverts on different platforms at the same time to maximize the visibility of their campaigns.\\
+
+The engineering team is contacted when some advertiser is constantly receiving errors from the APIs because it has reached the established rate limit for the endpoint they are trying to consume. This can happen for a variety of reasons, maybe they want to fetch a resource that needs multiple calls to be completed, or there is an error in the implementation that causes the endpoint to be called enough times to hit the rate limit. With the current setup, it is tough to trace back the reasons as even if the engineering team can access the logs, as they might not contain all the information in a convenient format. Another drawback is that the engineering team does not notice the problem beforehand, but only after it happens and the clients have already contacted them.
+
+\subsubsection*{Product managers and client partners}
+
+Product managers and client partners are the intermediaries between the engineering team and the clients that consume the APIs or any other connected service through the gateway. This is also why they want to get some visibility in which clients are hitting the rate limits on the gateway level. If they could identify if any client is hitting the rate limits, they can contact them directly to ensure that their integration or their usage of the company's services is correct and give assistance in that regard if needed. In that way, customer satisfaction could be improved with respect to the current status, where is the client who usually contacts if they are experimenting many errors.\\
+
+In that sense, this team is interested in having some visual tool to access that information because accessing the logs console using a series of queries requires some previous background that those professionals might not have.
+
+\subsubsection*{Security team}
+
+The security team wants to know more when specific clients or users make several requests to the services. Because in case that it is not an already identified client, which can be directly contacted, but another malicious user, they can ban him to prevent any further attack \cite{jhaveri2012attacks}.
 
 \clearpage
 \section{Requirement analysis}
 
 %% Taking into consideration that everyone has clear who are the stakeholders and what is the structure of the
 %% company and the microservices involved, now we have to do the requirement analysis.
+
+%% First of all, it is important to state why it is not possible to store things on Prometheus.
 
 %% We can list the project requirements like:
 
@@ -467,7 +576,7 @@ TEM        & transverse eletromagnetic
 %% - Definition of Domain Oriented Microservices Architecture, stressing out that this is a problem that many 
 %%   big companies are facing.
 
-\subsection{Observability & Monitoring}
+\subsection{Observability \& Monitoring}
 
 %% In this section we can differentiate the following topics:
 %% - Observability and Monitoring definition.
