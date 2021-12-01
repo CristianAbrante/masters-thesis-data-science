@@ -369,12 +369,7 @@ $\mathbf{B}$
 \subsection*{Abbreviations}
 
 \begin{tabular}{ll}
-AC         & alternating current \\
-APLAC      & an object-oriented analog circuit simulator and design tool \\
-           & (originally Analysis Program for Linear Active Circuits) \\
-BCS        & Bardeen-Cooper-Schrieffer \\ %% dash between the names
-DC         & direct current \\
-TEM        & transverse eletromagnetic
+DOMA         & Domain-oriented microservices architecture \\
 \end{tabular}
 
 
@@ -412,6 +407,7 @@ TEM        & transverse eletromagnetic
 
 \clearpage
 \section{Background}
+\label{sec:background}
 
 %% The objective of the background section is to give a business context to explain where the problem come from.
 
@@ -506,6 +502,7 @@ On figure \ref{fig:background:monitoring} it can be observed a diagram that repr
 In order to collect the metrics for the different microservices of the system, Prometheus \cite{turnbull2018monitoring} is the selected tool. It works by pulling relevant metrics from microservices and infrastructure, and afterward, those metrics can be accessed using its custom query language. On top of it, some Grafana dashboards \cite{hoang2020research} can be handcrafted to visualize those metrics on time series plots. This typical setup works well as it combines the possibility of exploring error logs and even tracing the endpoint calls for the microservices on a fine granularity, using standard Google Cloud tools such as the profiler \cite{thakurratan2018google}, and at the same time presents a visual representation for the metrics of the system, such as error rate, uptime or throughput, using a time-series format.\\
 
 \subsection{Problem definition}
+\label{sec:problem-definition}
 
 %% Describe the problem from different angles, depending on the stakeholders involved.
 
@@ -546,7 +543,7 @@ In that sense, this team is interested in having some visual tool to access that
 The security team wants to know more when specific clients or users make several requests to the services. Because in case that it is not an already identified client, which can be directly contacted, but another malicious user, they can ban him to prevent any further attack \cite{jhaveri2012attacks}.
 
 \clearpage
-\section{Requirement analysis}
+\section{Requirements engineering}
 
 %% Taking into consideration that everyone has clear who are the stakeholders and what is the structure of the
 %% company and the microservices involved, now we have to do the requirement analysis.
@@ -560,9 +557,53 @@ The security team wants to know more when specific clients or users make several
 %% - The provided solution has to be cloud agnostic (this is why some part has to be implemented in Terraform or using an external service).
 %% - We need a visual tool in order to communicate effectively with the stakeholders.
 
+Having presented the background necessary to understand the thesis project in Section \ref{sec:background}, this section will cover requirements engineering.\\
+
+Requirements engineering is the process of establishing the desired requirements to be met by the project \cite{hay2003requirements}. Section \ref{sec:req-methodology} will define the methodology to be followed to gather the requirements, and Section \ref{sec:req-analysis} will analyze these requirements. Finally, Section \ref{sec:research-questions} will present the research questions that will serve as the guiding thread of this thesis.
+
+\subsection{Requirements engineering methodology}
+\label{sec:req-methodology}
+
+Before performing the requirements analysis, it is essential to clarify which methodology will be followed to identify the project requirements. In this case, the framework proposed by David C. Hay \cite{hay2003requirements} for requirements engineering, which consists of three steps, is selected:
+
+\begin{itemize}
+    \item \textbf{Eliciting requirements}: this phase is where all the requirements will be discovered following the selected gathering methodology.
+    \item \textbf{Recording requirements}: The second phase consists of the documentation of the requirements previously collected.
+    \item \textbf{Analyzing requirements}: Finally, those requirements have to be analyzed in order to see if they are clear, complete, concise, and unambiguous.
+\end{itemize}
+
+For the elicitation of requirements, the selected method is stakeholders identification \cite{mitchell1997toward}, which consists of selecting individuals or groups interested in the product or function to be developed and asking them what the desired characteristics they expect from the product are. This method is the most appropriate for our project since it will only have an internal impact because external customers will not use it. The list of stakeholders for this project is given in section \ref{sec:problem-definition}.\\
+
+To record and document the requirements expressed by the stakeholders, there were two methods: the first was to use message threads in Slack, which is the internal communication platform, where relevant stakeholders could set their expectations, and the second method was to organize some meetings, based on the framework of the Joint Requirements Development (JRD) Sessions \cite{hay2003requirements}, to discuss the project and the expected results. At these meetings, a log was drafted to keep track of the issues discussed.
+
+\subsection{Requirements analysis}
+\label{sec:req-analysis}
+
+The last step of the chosen requirements engineering framework consists of performing an analysis of the requirements gathered from stakeholders. In that sense, the solution that is going to be presented for solving the problem stated in section \ref{sec:problem-definition} needs to meet the following requirements:
+
+\begin{itemize}
+    \item Clear definition on which are going to be the high-level responsibilities that the gateway will handle and which errors the gateway can generate associated with those.
+    \item Establish a format for the generated errors. They need to store all necessary fields in order to be traced back and visualized afterward.
+    \item Map possible errors and gateway responsibilities to the different endpoints that clients can consume.
+    \item Select a suitable data store for the errors. Data storage needs to be easily integrated with the current cloud setup and must ensure the acceptance of a standard query language that allows the integration with third-party tools.
+    \item Data ingestion has to be cloud-agnostic. This means that the error logging pipeline, from the event emission to the storage, has to be done with a technology that ensures compatibility with multiple cloud providers.
+    \item Develop a visualization tool that allows stakeholders to access the errors generated at the gateway level easily.
+\end{itemize}
+
 \subsection{Research questions}
+\label{sec:research-questions}
 
 %% Taking into consideration the previous requirement analysis we can state down the research questions.
+
+This project aims not only to satisfy the specific need for a technical feature but also to generate a set of tools and practices that can be used in the future by any other organization operating a DOMA. Therefore, this project needs an extensive investigation and planning phase, which these three research questions will guide:
+
+\begin{itemize}
+    \item[\textbf{Q1}] \textit{What is the best way to represent the possible high-level errors that a DOMA gateway can produce?}
+    \item[\textbf{Q2}] \textit{What is the optimal technology for storing the errors that a DOMA gateway can produce?}
+    \item[\textbf{Q3}] \textit{How to correctly visualize and communicate with the stakeholders the errors a DOMA gateway can produce?}
+\end{itemize}
+
+The objective of the thesis is to produce a series of software artifacts and standards that will satisfy the research questions and, therefore, the technical requirements of the stakeholders.
 
 \clearpage
 \section{Literature review}
