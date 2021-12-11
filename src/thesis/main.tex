@@ -369,7 +369,11 @@ $\mathbf{B}$
 \subsection*{Abbreviations}
 
 \begin{tabular}{ll}
+SOA          & Service oriented architecture \\
 DOMA         & Domain-oriented microservices architecture \\
+WSDL         & Web Service Deskcription Language \\
+SOAP         & Simple Object Acess Protocol \\
+
 \end{tabular}
 
 
@@ -459,6 +463,7 @@ Figure \ref{fig:background:unity-ads} shows the two aspects that make up the adv
 Although this overall context of UnityAds was essential to understand the big picture, only the Acquire division is considered in the following sections, as the thesis project focuses on it.
 
 \subsubsection{Acquire architecture overview}
+\label{sec:acquire-architecture}
 
 This section covers the architecture overview for the acquire division of UnityAds. It is important to note that many details of the architecture will not be explained in-depth to respect the company's privacy.\\
 
@@ -610,16 +615,83 @@ The objective of the thesis is to produce a series of software artifacts and sta
 
 %% In this section is where all the technologies used are reviewed. For sure having the following subsections:
 
-\subsection{Microservices architectures}
+This section aims to offer an extensive review of some topics that are relevant in order to develop this thesis. On the first subsection, there is a review of the most important services architectures nowadays, including the introduction of the new DOMA architecture. On the second subsection a review of the observability and monitoring topics is offered.
 
-%% In this section we can include the following:
-%% - Monolitical vs. microservices architectures. (drawbacks and advantages).
-%% - Definition of Domain Oriented Microservices Architecture, stressing out that this is a problem that many 
-%%   big companies are facing.
+\subsection{Software architectures review}
+
+%% 5 pages
+%% In this section we can include the following: (5 pages)
+%% - Brief introduction about the theoretical aspects that are going to be discussed.
+%% - Service Oriented Architectures (SOA)
+%% - Microservces architecture.
+%% - Domain oriented microservices architecture. Maybe introduce the gateway here or in another page.
+
+The main objective of this section is to introduce and analyze Domain Oriented Microservices Architecture (DOMA), as the paradigm that many midsize and large organizations are adopting in order to organize their software systems, and the most suitable one for describe the Unity Acquire software architecture (Section \ref{sec:acquire-architecture}).\\
+
+Software architecture is a fundamental topic in software engineering. Its main objective is to investigate which is the optimal way of organizing software processes and artifacts to guarantee that they can operate correctly and communicate between each other in order to accomplish their tasks. According to E. Perry and L. Wolf, the term \textit{"architecture"} was introduced on the software engineering field on the decade of 1980s in order to evoke the notions of abstractions and codification, and it is relevant still today in order to define the layout or disposition of software systems on different companies.\\
+
+One of the initial paradigms that established a breakthrough on how to organize software systems was the introduction of Object-Oriented programming (OOP) \cite{dahl1972chapter}, which was the first attempt to encapsulate data, offering a limit set of operations in order to access and modify it. Also it introduced the concept of interface \cite{snyder1993essence}, which is the entry point that external agents to the object had for accessing those. Even though OOP established a solid base for creating more complex systems, was still not enough for mapping business functionalities, which were later satisfied using more complex software paradigms. On the following subsections, those complex paradigms that are able to directly map business functionalities are going to be explained:
+
+\subsubsection{Service oriented architecture}
+
+Service-Orientes architecture (SOA) is a software paradigm that consists on the packaging of software systems into services, that were presented to the user into condensed packages that could be accessed using a certain well-defined protocol. The raise in popularity of SOA is coincident with the establishing of web protocols that allowed software systems to communicate in an effective way.\\
+
+The usage of those services can be done in two different ways. On the one hand, services can be consumed at run time by binding them into the code, in this case, the packaging of the services is done in software libraries, and on the other hand those services can be consumed using some kind of web protocol, in this case some standards can be used in order to establish a data format, such as Web Service Description Language (WSDL) or the wide-known Simple Object Access Protocol (SOAP).\\
+
+Even though SOA is a giant step forward in the design of software systems, especially because it helps on the scalability and reusability of components in an effective way, it can also present some drawbacks:
+
+\begin{itemize}
+    \item Services can contain an important amount of functionalities, and a big codebase, which can be difficult to manage if the engineering team is constantly growing.
+    \item If business domain require an important amount of functionalities that can be grouped logically in the same service, it can rapidly become a monolith. 
+    \item Adding new functionalities to the system usually implies that the whole service has to be deployed at the same time, which can be error-prone.
+    \item Data storage is a central piece of the software systems and can be also the communication point between services, which can cause inconsistencies as several services might get access to the same data.
+\end{itemize}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.4]{src/thesis/img/literature-review/SOA.png}
+    \caption{Diagram describing SOA}
+    \label{fig:soa-architecture}
+\end{figure}
+
+This software architecture might be useful on the initial stage of companies or organizations, where services are really limited and the functionalities are not completely developed. But the pain points might arise when operating into a different scale. It can be considered the initial architecture of Applifier (Figure \ref{fig:background:applifier-architecture}) is SOA, as shared the same structure and had to deal with similar drawbacks.
+
+\subsubsection{Microservices architecture}
+
+In order to solve the problems that the traditional service architecture present, there is a novel approach that had gained a lot of interest both from the industrial and the academic perspective; microservices architectures.\\
+
+There are many authors that had tried to give precise definitions for microservices in order to establish a framework that can help both engineers and researchers to develop applications that could tackle the original problems of software services.\\
+
+One of the most relevant definitions is done by Dragoni et al.: \textit{"A microservice is a cohesive, independent process interacting via messages"}. This definition is quite interesting because it is not centered on the size of the service, which is one of the debate points of the definition due to the introduction of the word \textit{"micro"} on it. Apart from that, it also emphasize the concept of idependence and remote communication which is one of the key points of modern microservices, which are usually deployed independently and communicating between each other using a well-known protocol.\\
+
+On that regard, the definition of Johannes Thones certainly expand some relevant aspects: \textit{"Microservice is a small application that can be deployed independently, scaled independently, and tested independently and that has a single responsibility"}. One of the emphasis points on this definition is the independence on the deployment and testing, which is one of the key advantages that make microservices really useful when managed by a growing team of engineers. Apart from that, Thones points our the single responsibility principle that should be always kept in mind when designing microservices.\\
+
+Following the classification of Lewis et al. microservices should share the following characteristics:
+
+\begin{itemize}
+    \item \textbf{Modularity of services}: As in SOA, microservices offer a modular functionality that can be reused easily. The main difference between both is that microservices could be deployed modularily whereas on SOA the deployment implies a complete deployment of the service.
+    \item \textbf{Organised around business capability}: On traditional software systems teams are organized into different functional areas, for example, one team would be responsible for the engineering of one service and another for the deployment and testing, in that schema if there is a failing deployment the responsibility is shared across the teams which can cause some delays as the issue can not be handled within an organizational unit.
+    \item \textbf{Product not projects}: In SOA each service is mapped into a business requirement, on the contrary on microservices one business requirement is aimed to be mapped to multiple microservices, in order to reduce the amount of responsibilities of each one.
+    \item \textbf{Smart endpoints and dumb pipes}: on microservices, the main logic have to be placed on the microservices that are accessed via endpoints. There has to be few communication middlewares (pipes) with actual logic.
+    \item \textbf{Decentralized data management and governance}: One of the main characteristic of microservices is that data is not the joint point between services anymore because each microservice has it's own independent data store.
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.4]{src/thesis/img/literature-review/microservices.png}
+    \caption{Diagram describing microservices architecture}
+    \label{fig:microservices-architecture}
+\end{figure}
+
+Even though microservices architectures offer an interesting approach for solving scalability issues, it is not a silver bullet as it can also have some drawbacks such as; data integration, as for fetching data providing from different sources now we have to integrate the responses received from diverse microservices, or the increased difficulties in order to implement one new feature, as it maybe have to involve different teams, which on SOA might also be done by adding a new method to the existing monolith.
+
+\subsubsection{Domain-oriented microservices architecture}
+
+The last architecture that is going to be presented is DOMA, 
 
 \subsection{Observability \& Monitoring}
 
-%% In this section we can differentiate the following topics:
+%% In this section we can differentiate the following topics: (5 pages)
 %% - Observability and Monitoring definition.
 %% - Application of observability and monitoring to microservices.
 %% - Data observability.
@@ -627,6 +699,7 @@ The objective of the thesis is to produce a series of software artifacts and sta
 
 \subsection{Framework comparisons}
 
+%% (10 pages)
 %% In this section a comparison of the current frameworks for monitoring and observability has to be done.
 %% The following can be compared:
 
@@ -698,6 +771,8 @@ The objective of the thesis is to produce a series of software artifacts and sta
 %% This part is almost the last one to write, basically write some pages of conclussions, and offer future work
 
 %% For future work basically it can be checked if there is something on the backlog.
+
+%% Focus conclussion on an adoption analysis for the three types of organizations: startups, midsize organizations and large organizations.
 
 \clearpage
 \thesisbibliography
