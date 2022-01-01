@@ -629,7 +629,7 @@ This section aims to provide a broad review of some topics relevant to the devel
 
 Domain Oriented Microservices Architecture (DOMA) is the paradigm that many medium and large organizations are adopting to organize their software systems and the most suitable to describe the software architecture of the Acquire unit (Section  \ref{sec:acquire-architecture}). This section offers a review of the software architectures that led to the establishment of DOMA as the state-of-the-art.\\
 
-Software architecture is a fundamental topic in software engineering. Its main objective is to investigate the optimal way to organize software processes and artifacts to ensure that they can function properly and communicate with each other to accomplish their tasks \cite{shadija2017towards}. According to E. Perry and L. Wolf \cite{perry1992foundations}, the term "architecture" was introduced into software engineering in the 1980s to evoke the notions of abstraction and coding. It is still relevant today to define the layout of software systems in different enterprises.\\
+Software architecture is a fundamental topic in software engineering. Its main objective is to investigate the optimal way to organize software processes and artifacts to ensure that they can function properly and communicate with each other to accomplish their tasks \cite{shadija2017towards}. According to E. Perry and L. Wolf \cite{perry1992foundations}, the term \textit{"architecture"} was introduced into software engineering in the 1980s to evoke the notions of abstraction and coding. It is still relevant today to define the layout of software systems in different enterprises.\\
 
 One of the initial paradigms that established a breakthrough in how software systems were organized was the introduction of object-oriented programming (OOP) \cite{dahl1972chapter}, which was the first attempt to encapsulate data, offering a limited set of operations to access and modify it. It also introduced the concept of interfaces \cite{snyder1993essence}, which are the entry point that agents external to the object had to access. Although OOP established a solid foundation for creating more complex systems, it was still not sufficient to map business functionalities, which were later satisfied using more complex software paradigms. In the following subsections, those complex paradigms that are capable of mapping business functionality directly will be explained.
 
@@ -728,6 +728,41 @@ DOMA is adopted on organizations as an iteration of a pre-existent microservices
 \end{itemize}
 
 The introduction of DOMA is recent, so there is not much research on how to populate those four elements with concrete business requirements to transition a microservices architecture into a successful DOMA. The only available public example is offered in the article by Uber Engineering \cite{DOMAUber}, where they provide an interesting view on how to distribute the layers pyramidally, where the base of the pyramid represents broad functionalities that can be used across the organization, such as storage or networking services. In contrast, concrete client-facing functionalities are at the top of the pyramid. This interesting approach guarantees that the layers are isolated, and dependencies flow from top to bottom.
+
+\subsection{Microservices gateway}
+
+This section is intended to extend the knowledge presented in the previous section about microservices gateways. As stated before, gateways are an essential element in DOMA, and their primary purpose is to isolate the domains of microservices and work as the single entry point. Even though they represent a crucial element in DOMA, they can also be used in a simple microservices architecture.\\
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.3]{src/thesis/img/literature-review/gateway.png}
+    \caption{Diagram comparing the call of a microservice architecture with or without gateway}
+\end{figure}
+
+On Microservices Patterns, by C. Richardson \cite{richardson2018microservices}, several reasons why creating an API gateway is vital on a microservices architecture are introduced.
+
+\begin{itemize}
+    \item Each microservice exposes a minimal set of fine-grain API endpoints. To compose a more meaningful and high-level API call, the information of many microservices has to be integrated somehow. That responsibility should ideally not lie on the consumers of the services.
+    \item The users do not need to know the internal details of microservices architecture to respect the company's privacy and internal structure. Due to this, they rather interact with some proxy instead of calling the specific microservices.
+    \item The communication protocols between microservices can be very diverse. Clients would prefer only to use one communication protocol to request resources on the systems rather than preparing their custom data integration.
+    \item Several high-level responsibilities are shared between microservices, and they would be better managed on a central point rather than re-implementing the logic for each service.
+\end{itemize}
+
+Each point of this list defines a valid reason for considering the creation of a microservices architecture gateway; nevertheless, the last one is the most relevant for this thesis and is the one that will be explored in-depth.\\
+
+As this thesis aims to monitor the high-level errors of a microservices architecture gateway, it is necessary first to define the responsibilities it has to take. The high-level responsibilities stated by M. Thangavelu et al. \cite{UberGateway} will be considered for this definition.
+
+\begin{itemize}
+    \item \textbf{Auditing pipeline}. maintaining a registry of all the access and operations that the gateway performs. This thesis aims to improve the logging when referring to the error generated by the stated responsibilities.
+    \item \textbf{Authentication}. Each access to the service has to be authenticated and authorized, and that responsibility should lie on a central software piece like the gateway.
+    \item \textbf{Rate limiting}. That refers to the capacity of the system to prevent malicious attacks caused by an uncontrolled number of recurrent requests.
+    \item \textbf{Documentation}. Ideally, all API calls should be documented on a central repository with a standard format.
+    \item \textbf{Response fields trimming}. As the gateway works as a proxy for the backend microservices, it would be helpful to have the possibility to specify the omission of specific fields on the user's responses.
+    \item \textbf{Datacenter affinity}. There can be some logic on the gateway that could redirect user calls to certain physical regions where the data can be retrieved faster.
+    \item \textbf{Short-term user bans}. Temporarily banning users who had malicious behavior on the system can be one of the solutions to deal with cyber-attacks. That responsibility should be delegated to a central software piece rather than be shared across the microservices.
+\end{itemize}
+
+Considering those high-level responsibilities, in section CITE-SECTION the errors related to each of them will be defined.
 
 \subsection{Observability \& Monitoring}
 
