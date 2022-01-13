@@ -409,6 +409,7 @@ DOMA         & Domain-oriented microservices architecture \\
 WSDL         & Web Service Deskcription Language \\
 SOAP         & Simple Object Acess Protocol \\
 RPC          & Remote Procedure Call \\
+REP          & Request Execution Path \\
 
 \end{tabular}
 
@@ -798,28 +799,49 @@ As this thesis aims to monitor the high-level errors of a microservices architec
     \item \textbf{Short-term user bans}. Temporarily banning users who had malicious behavior on the system can be one of the solutions to deal with cyber-attacks. That responsibility should be delegated to a central software piece rather than be shared across the microservices.
 \end{itemize}
 
-Considering those high-level responsibilities, in section CITE-SECTION the errors related to each of them will be defined.
+Considering those high-level responsibilities, in section \ref{sec:gateway-configuration-file} the errors related to each of them will be defined.
 
-\subsection{Observability \& Monitoring}
+\subsection{Observability and Monitoring}
 
-%% In this section we can differentiate the following topics: (5 pages)
+%% In this section we can differentiate the following topics: (3 pages)
 %% - Observability and Monitoring definition.
 %% - Application of observability and monitoring to microservices.
 %% - Data observability.
 %% - The four pillars of data observability (check one of the articles).
 
-\subsection{Framework comparisons}
+% Introduction to monitoring and observability
+% Which is the state of the art on it and offer a plot with the authors.
+%
 
-%% (10 pages)
-%% In this section a comparison of the current frameworks for monitoring and observability has to be done.
-%% The following can be compared:
+Observability and monitoring are hot topics in software system maintenance, and it is especially relevant to review them applied to microservices architecture \cite{ObservabilityvsMonitoring}. Hence, the objective of this section is to give a theoretical introduction to both topics, a review of the current \textit{state-of-the-art}.\\
 
-%% - Google custom monitoring & observability tools.
-%% - Datadog
-%% - Amplitude
+It is common to confuse both observability and monitoring as their objective is to check whether something in the system is not working as it should \cite{ObservabilityvsMonitoring}. Nevertheless, monitoring is based on taking metrics of quantifiable elements such as CPU usage, memory usage, or network traffic \cite{MonitoringIEEE}. The basic procedure for monitoring any system is by querying it directly to obtain those metrics and set up visual dashboards and alerts that will warn if the behavior is not the expected. This method is quite effective for maintaining traditional monolithic applications' health as the resources they consume are centralized, contrary to microservices or DOMA, where they are distributed over a network. Also, monitoring presents a clear disadvantage as the problems are usually identified when the metrics' values show a higher value than a certain threshold, which might be too late to react to an incident.\\
 
-%% It is important to explain the features of all of them when monitoring microservices, also taking into consideration
-%% the costs analysis, and if they are suitable for showing the custom data that we are going to log.
+On the other hand, observability is similar on purpose but different on methodology. Rudolph E. Kalman introduced the term observability in 1960 on the control systems field \cite{kalman1960general}. The basic definition is: \textit{"Observability is a measure of the wellness of the internal state of a system inferred from the knowledge of its external outputs."} Even if it was first invented for the control systems field, observability has been applied to modern software architectures, such as microservices. Attending to that classic definition, the inference of the internal state had to be done by producing a set of outputs from the highly-observable software service that it is being maintained, and that is done by generating a set of logs and traces \cite{picoreti2018multilevel}.\\
+
+In that regard, to investigate \textbf{Q1} and generate a valuable solution, it is needed to create an observability + monitoring tool. The observability side of the project will be responsible for the generation of logs that will contain enough information about the internal state and the high-level errors that the gateway handled. On top of it, a monitoring platform had to be created to visualize those responsibilities graphically, hence answering \textbf{Q3}.\\
+
+\subsection{Previous work}
+
+This section reviews the previous studies in the field of services monitoring. To narrow the scope of the research, only previous studies centered on microservices are considered. Furthermore, only the ones provide a novel approach to bridge the gap between the complexity of distributed microservices architecture and its monitoring \cite{niedermaier2019observability}.\\
+
+First of all, Yang et al. \cite{yang2018transparently} propose a new approach for capturing the request execution path (REP) transparently. This novel method categorizes the events generated at a microservice level, and the relationships between those events are identified to construct a monitoring tool that could effectively trace the REP. The way this study categorizes the events is similar to the work done for the categorization of the DOMA Gateway events done for this thesis (Section \ref{sec:gateway-configuration-file}).\\
+
+Sun et al. \cite{sun2018constraint} presented an analysis of many microservices architectures on the complexity analysis topic, pointing out that they do not provide any valuable information about their internal state. Hence, the observability procedures were not working correctly, and some improvements have to be made.\\
+
+Jongh et al.\cite{johng2018estimating} formulate a different study where benchmarking and simulation are used on a combined approach in order to monitor execution times. This study is centered on monitoring execution performance, offering a concrete technical solution instead of concrete surveys and definitions.\\
+
+In that regard, Lin et al. \cite{lin2018microscope} present a study whose aim is to propose a new method for root cause detection, where the errors are identified using causal graphs. This work focuses on identifying and monitoring the errors caused in distributed systems and how they are propagated across the architecture.\\
+
+Finally, Gupta et al. \cite{gupta2018runtime} proposed a new way for monitoring continuous deployment on rapidly changing companies (with the independence of the size of the product). On that approach, data mining techniques are applied to the logs of highly-observable microservices to discover the differences between deployed versions on microservices.\\
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.4]{src/thesis/img/literature-review/literature-review.png}
+    \label{fig:literature-review-comparison}
+\end{figure}
+
+As shown in figure \ref{fig:literature-review-comparison}, the work presented in this thesis is situated on a middle point on the axes of distributed system complexity and monitoring capabilities. This is because it proposes a schema definition for the errors presented on the DOMA Gateway and offers an accurate tool tested in an extensive environment.\\
 
 \clearpage
 \section{Technical solution}
@@ -829,6 +851,7 @@ COMPLETE-SECTION -> ON THIS PART GIVE A BRIEF INTRODUCTION ON WHICH ARE THE TECH
 %% The outcome of this thesis are basically 4 technical solutions.
 
 \subsection{Gateway configuration file}
+\label{sec:gateway-configuration-file}
 
 After having discussed the high-level responsibilities that the gateway of a DOMA should have (section \ref{sec:microservices-gateway}), in this chapter, one of the main outputs obtained from this thesis is introduced, which is the definition of a route-level configuration format for the gateway, in order to solve \textbf{Q1}.\\
 
@@ -838,7 +861,7 @@ A route-level configuration format is a standard that can be used to state down 
     \item It can be used as the primary source of truth of the resources that the gateway exposes.
     \item The generation of the endpoint's documentation can be automatized; therefore, all the teams involved in the microservices do not need to do it by themselves.
     \item This standard defines a contract on what the endpoint handlers should do when managing the responsibilities. The engineers that are going to implement the proxy should fulfill the specifications of the standards, and the endpoints consumer should rely on those responsibilities.
-    \item There are some literature examples of composable gateway logic \cite{GatewayUber}; this standard can be the consuming point of this automated gateway generator. 
+    \item There are some literature examples of composable gateway logic \cite{UberGateway}; this standard can be the consuming point of this automated gateway generator. 
 \end{itemize}
 
 JSON schema is the standard that will be used for defining the gateway configuration file. The primary purpose of using that schema is that several tools can be used to validate the configuration file against the schema, such as \texttt{ajv} \cite{AjvTool} or \texttt{is-my-json-valid} \cite{IsMyJsonValid}. The schema is defined using JSON format, and it is publicly available on the open-source repository for this project (CITE-SECTION).\\
@@ -948,6 +971,8 @@ The fields that are included in the array are not going to be forwarded to the e
 %% - Implementation on the gateway side. Explain that Unity currently has a logging tool enabled and we only had to log certain events gathering the requests.
 %% - Terraform implementation. This part is where it can be explained how we use terraform and how to the problem cloud-agnostic.
 %% - BigQuery setup.
+
+
 
 \subsection{Error visualization dashboard}
 
