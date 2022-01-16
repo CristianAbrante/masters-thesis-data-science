@@ -971,7 +971,8 @@ The fields that are included in the array are not going to be forwarded to the e
 
 As stated in section \ref{sec:req-analysis}, one of the requirements for this project is to create a format for representing the gateway responsibilities (section \ref{sec:gateway-configuration-file}) and a tool that stores and visualizes those errors to fulfill the stakeholders' expectations. This section covers the development of that tool, centering on the definition of the data that will be stored, the implementation details, and finally, the selected data storage technology.
 
-\subsubsection{Error events definition}
+\subsubsection{Error event definition}
+\label{sec:error-event-definition}
 
 This subsection covers the definition of the events that will be collected on the data storage to be visualized in the future. The main objective of this is that it should share many standard fields that can be used to identify the error for all the gateway high-level responsibilities (stated in section \ref{sec:microservices-gateway}).\\
 
@@ -1002,6 +1003,26 @@ Apart from the previous fields, which are the common ones and shared across diff
 \end{itemize}
 
 After having defined the data structure for the events, the following sections will cover its technical implementation, from the collection of the event on the gateway side to the actual storage on the databases.
+
+\subsubsection{Project planning}
+
+Before diving into the project's technical implementation, it is relevant to give a brief overview of the project planning. To develop the project, we used scrum as the agile methodology \cite{schwaber1997scrum}, dividing the tasks into specific user stories and tasks that were executed on different sprints. The tool used for the project planning was AirTable, which primary usage was to introduce the three stories that configure the project and give an estimation based on the workforce that will execute it.\\
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.3]{src/thesis/img/technical-solution/project-planning.png}
+    \caption{Project planning on AirTable}
+\end{figure}
+
+The three project stories that configured the project were:
+
+\begin{itemize}
+    \item \textbf{Proof of concept of visualizing BigQuery event data}: As we were unsure how to use the selected technologies for development, first, it was needed to build a proof of concept with dummy data to configure all involved parts. Also, this story included the publishing of the RFC for the event structure described in section \ref{sec:error-event-definition}.
+    \item \textbf{Implement event collection in Unity Services Gateway}: This story includes the implementation of the events collection on Unity Services Gateway, described in section CITE-SECTION.
+    \item \textbf{Gateway metrics dashboard}: This story covers the implementation of the custom plots used on the visualization step; this is explained in more detail in section CITE-SECTION.
+\end{itemize}
+
+To fulfill the three stories that composed the project, the total execution time was one month, which was close to the estimated time, only differing on a couple of days.
 
 \subsection{Error visualization dashboard}
 
