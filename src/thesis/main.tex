@@ -410,6 +410,7 @@ WSDL         & Web Service Deskcription Language \\
 SOAP         & Simple Object Acess Protocol \\
 RPC          & Remote Procedure Call \\
 REP          & Request Execution Path \\
+RFC          & Request for comments
 
 \end{tabular}
 
@@ -968,7 +969,39 @@ The fields that are included in the array are not going to be forwarded to the e
 %% - Terraform implementation. This part is where it can be explained how we use terraform and how to the problem cloud-agnostic.
 %% - BigQuery setup.
 
+As stated in section \ref{sec:req-analysis}, one of the requirements for this project is to create a format for representing the gateway responsibilities (section \ref{sec:gateway-configuration-file}) and a tool that stores and visualizes those errors to fulfill the stakeholders' expectations. This section covers the development of that tool, centering on the definition of the data that will be stored, the implementation details, and finally, the selected data storage technology.
 
+\subsubsection{Error events definition}
+
+This subsection covers the definition of the events that will be collected on the data storage to be visualized in the future. The main objective of this is that it should share many standard fields that can be used to identify the error for all the gateway high-level responsibilities (stated in section \ref{sec:microservices-gateway}).\\
+
+For doing that, the approach consists of having some general fields independent of the error event generated, which will be used to locate the endpoint that was called and that caused the error. Apart from that, some specific fields will be stored depending on the high-level responsibility that caused the error, and the purpose for this is to create meaningful visualizations afterward. It is essential to state that only the rate-limiting responsibility was considered for the initial implementation as it is the most important for the stakeholders. Nevertheless, it can be extended in the future as many fields can be added easily to the events.\\
+
+The procedure for defining which are the meaningful fields had to be stored was by presenting an RFC (Requests for comments) \cite{reynolds1987request} internally on the gateway development team, so all the people involved in it could freely give comments and ideas. As the company is using slack as the communication platform, the RFC was shared in a slack thread. The number of people present on the slack channel was 294 when the RFC was published, and there were 139 replies to it from people from different teams, such as project managers and engineers.\\
+
+After that internal discussion, the agreed set of fields that the events should contain are the following ones:
+
+\begin{itemize}
+    \item \texttt{source}: It is the type of event that will be stored. They should match the gateway responsibilities (section \ref{sec:microservices-gateway}), but as stated before, as only the rate-limiting responsibility is considered for this implementation, the only possible value is \texttt{RATE\_LIMIT}. Some other values like \texttt{AUTHENTICATION} or \texttt{AUTHORIZATION} can be added in the future.
+    \item \texttt{requestId}: This maps the request to a unique id that can be used to trace it back on the microservices calls. The gateway defines this unique id.
+    \item \texttt{path}: The completed path of the resource requested on the query. In the context of the Unity public API an example of it can be: \\ \texttt{/advertise/v1/organizations/:organizationId/apps/:campaignSetId/campaigns}.
+    \item \texttt{organizationId}: It is the organization id extracted from the request's path. If that parameter is not present on the path, the value is \texttt{null}.
+    \item \texttt{httpMethod}: This value is the HTTP method used in the request. This parameter is essential for distinguishing between different endpoints.
+    \item \texttt{apiVersion}: As REST APIs are frequently versioned \cite{varga2016versioning}, this parameter aims to contain the different versions of the API. It is also extracted from the path, so it has a null value if it is not present on it.
+    \item \texttt{apiType}: This parameter distinguishes between the two types of API endpoints, \texttt{private} and \texttt{public} ones. Private endpoints are used only internally, whereas public endpoints can be consumed by any external client.
+    \item \texttt{apiNamespace}: In the context of the company, there are different types of APIs: monetization, advertising, cloud game..., and those categories are considered namespaces. This field represents the identifier of the namespace.
+    \item \texttt{timestamp}: Timestamp on Unix standard time for when the event was triggered.
+\end{itemize}
+
+Apart from the previous fields, which are the common ones and shared across different errors, there is also the definition of specific fields about the rate limit responsibility:
+
+\begin{itemize}
+    \item \texttt{rateLimitReason}: this is why the rate-limiting was activated and which of the two maximum rates was reached. It can be either \texttt{tooManyRequestPerSecond} or \texttt{tooManyRequestsPerThirtyMinutes}.
+    \item \texttt{quota}: Number of requests that made the rate limit reach the maximum amount.
+    \item \texttt{group}: Rate limiters can be grouped to be shared across different endpoints. For that, the parser of the gateway responsibilities file (section \ref{sec:gateway-configuration-file}) had to be able to apply shared rate-limiting responsibilities to other endpoints. This field stores the identifier of the rate limiter that was hit. In case it is not present, it should have a \texttt{null} value.
+\end{itemize}
+
+After having defined the data structure for the events, the following sections will cover its technical implementation, from the collection of the event on the gateway side to the actual storage on the databases.
 
 \subsection{Error visualization dashboard}
 
