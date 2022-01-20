@@ -410,7 +410,8 @@ WSDL         & Web Service Deskcription Language \\
 SOAP         & Simple Object Acess Protocol \\
 RPC          & Remote Procedure Call \\
 REP          & Request Execution Path \\
-RFC          & Request for comments
+RFC          & Request for comments \\
+BQ           & BigQuery \\
 
 \end{tabular}
 
@@ -1017,12 +1018,165 @@ Before diving into the project's technical implementation, it is relevant to giv
 The three project stories that configured the project were:
 
 \begin{itemize}
-    \item \textbf{Proof of concept of visualizing BigQuery event data}: As we were unsure how to use the selected technologies for development, first, it was needed to build a proof of concept with dummy data to configure all involved parts. Also, this story included the publishing of the RFC for the event structure described in section \ref{sec:error-event-definition}.
+    \item \textbf{Proof of concept of visualizing event data}: As we were unsure how to use the selected technologies for development, first, it was needed to build a proof of concept with dummy data to configure all involved parts. Also, this story included the publishing of the RFC for the event structure described in section \ref{sec:error-event-definition}.
     \item \textbf{Implement event collection in Unity Services Gateway}: This story includes the implementation of the events collection on Unity Services Gateway, described in section CITE-SECTION.
     \item \textbf{Gateway metrics dashboard}: This story covers the implementation of the custom plots used on the visualization step; this is explained in more detail in section CITE-SECTION.
 \end{itemize}
 
 To fulfill the three stories that composed the project, the total execution time was one month, which was close to the estimated time, only differing on a couple of days.
+
+\subsubsection{Data storage technology selection}
+
+This section aims to explain why a particular storage technology is selected for storing the generated gateway errors, thus answering \textbf{Q2}. To define the optimal storage technology, three criteria have been considered.
+
+\begin{itemize}
+    \item[\textbf{C1}] \textbf{price}: The monthly price that the organization have to spend on the selected technology.
+    \item[\textbf{C2}] \textbf{Data access}: This criterion sets how easy it is to consult the data stored using standard language such as SQL.
+    \item[\textbf{C3}] \textbf{Integration with the current cloud setup}: most modern organizations, especially those that are big enough to deal with a gateway for a microservices architecture, are operating using a cloud provider. In that sense, this criterion sets the easiness for integrating the storage technology with the current cloud provider.
+\end{itemize}
+
+The answers for this questions might differ depending on different organizations, but should be enough for deciding the best choice among the considered technologies. For the scope of this project and considering the events generated on the Unity Services Gateway, there are three storing technologies considered in the comparison:
+
+\begin{itemize}
+    \item \textbf{BigQuery} \cite{BigQuery}: This is a data warehouse designed by Google to store, efficiently access, and analyze enormous amounts of data. One of its most exciting characteristics is that it allows access to that data using standard SQL statements.
+    \item \textbf{Amplitude} \cite{Amplitude}: This is a tool used to store events produced on applications and analyze them. It is more common to use it in front-end applications to analyze user behavior.
+    \item \textbf{PostgresSQL} \cite{PostgreSQL}: PostgreSQL is an open-source relational database. It has to be used on an instance in the cloud provider of our choice.
+\end{itemize}
+
+After having defined those three options, they will be compared using the three criteria on separate sections, and finally, the results will be shown in table \ref{tab:data-souces}.
+
+\subsubsection*{C1 - Price}
+
+It is essential to set some common values needed to compare different technologies' prices.
+
+\begin{itemize}
+    \item \textbf{Requests per month} ($N$): It is considered that 50.000 events per month is the upper bound for the number of events for all endpoints.
+    \item \textbf{Size of the insertion request (KB)} ($w_i$): Another consideration is that the upper bound for insertion is 100KB per event.
+    \item \textbf{Maximum size per retrieve request (MB)}: One consideration is that there can be fetched 1000 records at most when retrieving the information. This limit is set as it is the limit of Grafana, the visualization platform.
+    \item \textbf{Storage per year}: Considering the number of monthly requests and the size of each new record, the storage that we will consume is around 50GB per year.
+\end{itemize}
+
+After having those variables settled, the cost calculations are going to be done for the three different storage technologies considered.
+
+\subsubsection*{BigQuery}
+
+First of all, the costs for BigQuery are going to be calculated based on the official documentation for the tool \cite{BigQueryDocsPricing} and on the article by Welch Al \cite{BigQueryCosts}. On BigQuery, there are three different types of costs: storage costs, query costs, and insertion costs.\\
+
+First, storage costs are going to be calculated. Storage costs are different depending on active storage (\$0.02/GB/month) and long-term storage (\$0.01/GB/month). The consideration of a record as active or long-term is decided by Google and depends on the last time accessing it. The calculation is that 15GB would be active storage, and there would be another additional 35GB as long-term storage.
+
+\begin{equation}
+\begin{split}
+    C_{storage} = \$0.02 \cdot S_{active} + \$0.01 \cdot s_{long-term} \\
+    C_{storage} = \$0.02 \cdot 15GB + \$0.01 \cdot 35GB \\
+    C_{storage} = \$ 0.65 / month
+\end{split}
+\end{equation}
+
+Secondly, the query costs are going to be estimated. Those costs are calculated per terabyte processed (\$5 / TB), so the estimation has to be in that unit. The three variables involved in that calculation are the following:
+
+\begin{itemize}
+    \item \textbf{The number of users per day} ($n$): The estimation is that 20 will be the upper bound for daily users, as it is an internal tool that is usually not consulted every day. Considering that they access five times, the total will be around 100 estimated daily individual accesses.
+    \item \textbf{The number of queries per user} ($q$): The estimated number of queries is 25 for the initial implementation of the visualization tool.
+    \item \textbf{Average data usage} ($d$): The data usage is the number of max records fetched per query. This number was set before to 1000 records, so the calculation in TB is the following: $100KB \cdot 1000 = 100000KB = 1e^{-4}TB$
+    
+\end{itemize}
+
+\begin{equation}
+\begin{split}
+    C_{query} = \$5 \cdot (n \cdot q \cdot d \cdot 30) \\
+    C_{query} = \$5 \cdot (20 \cdot 25 \cdot 1e^{-4}TB \cdot 30)\\
+    C_{query} = \$7.5 / month
+\end{split}
+\end{equation}
+
+Finally, the last type of cost being addressed is the insertion cost. This one is the easiest to calculate, as it only consists of \$0.01 per 200MB inserted. So the total insertion cost will be:
+
+\begin{equation}
+\begin{split}
+    C_{insertion} = \frac{\$0.01}{200MB} \cdot N \cdot w_i \\
+    C_{insertion} = \frac{\$0.01}{200MB} \cdot 50.000 \cdot 0.1MB \\
+    C_{insertion} = \$0.25 / month
+\end{split}
+\end{equation}
+
+Considering those three costs, the total monthly cost ($C_{total}$) for BigQuery is estimated as it follows:
+
+\begin{equation}
+\begin{split}
+    C_{total} = C_{insertion} + C_{query} + C_{storage}\\
+    C_{insertion} = \$0.25 + \$7.5 +\$0.65\\
+    C_{insertion} = \$8.4 / month
+\end{split}
+\end{equation}
+
+As it can be seen the total monthly cost for this technology is of \$8.4 / month.
+
+\subsubsection*{Amplitude}
+
+Amplitude's costs are divided into three categories: starter, growth, and Enterprise. On the starter version, they offer the storage and processing of 10 million monthly events, which is more than enough for covering the expected 50.0000 monthly actions. The price for this version is free, so as it can be seen Amplitude is a really good option cost-wise.
+
+\subsubsection*{PostgresSQL}
+
+Here the costs are not dependent on the technology itself, as PostgresSQL is an open-source database technology, but on the expenses related to the cloud provider, which in the case for this project is Google Cloud. To calculate the costs, the official documentation for CloudSQL \cite{PostgreSQLonGCP} is considered.\\
+
+In this case, the are three variables to decide that will determine the costs, which are also dependent on the zone. In this case, we are considering London (Europe west-2) for the cost calculation in order to cover European clients:
+
+\begin{itemize}
+    \item \textbf{Number of CPUs}: It is the number of virtual CPUs allocated for processing the events, the insertions, and the queries. As the application is not customer-facing, the estimation is that only 2 CPUs will be enough. The price for each CPU is \$27.13 per month.
+    \item \textbf{Memory}: The amount of memory allocated for the processing. The estimation is to have 8GBs assigned. The price is \$6.13 per GB per month.
+    \item \textbf{Storage}: For the storage, same numbers as for the BigQuery section it is considered. The price is \$0.176 per GB on SSD storage and \$0.09 per GB on HDD storage.
+\end{itemize}
+
+Once those variables had been established, the total cost for this technology will be:
+
+\begin{equation}
+\begin{split}
+    C_{total} = C_{CPU} + C_{memory} + C_{storage}\\
+    C_{total} = \$27.13 \cdot 2 + \$6.13 \cdot 8 + \$0.176 \cdot 15 + \$0.09 \cdot 35\\
+    C_{total} = \$54.26 + \$49.04 + \$5.79
+    C_{total} = \$109.9 / month
+\end{split}
+\end{equation}
+
+\subsubsection*{C2 - Data access}
+
+The second criterion considered is the tool's easiness for accessing data, especially if we consider using a standard query language such as SQL. In that regard, the characteristics for each datasource are:
+\begin{itemize}
+    \item \textbf{BigQuery}: One of the main characteristics of BigQuery is that even though it is a data warehouse, standard SQL can be used for accessing the data on it, so that makes it convenient.
+    \item \textbf{Amplitude}: One of the weak points of this tool is that the data can only be accessed via their application using click-ops, which makes the integration with external tools difficult.
+    \item \textbf{PostgresSQL}: As it is a traditional relational database, it can be accessed using standard SQL.
+\end{itemize}
+
+\subsubsection*{C3 - integration with the current cloud setup}
+
+This third criterion refers to the tool's capacity to be used in integration with the current cloud setup for its purpose. The comparison between them is as follows:
+
+\begin{itemize}
+    \item \textbf{BigQuery}: In the case of using Google Cloud Platform, BigQuery is integrated into the environment out of the box. Nevertheless, if the company already uses another cloud platform, using BigQuery becomes impossible.
+    \item \textbf{Amplitude}: As it is an external platform, it can be easily used with any cloud provider to store and analyze events. 
+    \item \textbf{PostgresSQL}: All modern cloud providers provide access to a database instance, so it should be effortless to integrate with any of them. 
+\end{itemize}
+
+\subsubsection*{Data storage selection based on the criteria}
+
+Based on the three criteria, table \ref{tab:data-souces} contains a summary of the comparison between the three technologies.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+           & C1 - Price    & C2 - Data Access & C3 - Integration \\ \hline\hline
+BigQuery   & \$8.4/month   & Easy             & High             \\
+Amplitude  & Free          & Medium           & Medium           \\
+PostgreSQL & \$109.9/month & Medium           & High             \\ \hline 
+\end{tabular}
+\caption{Comparison between different data storage and data analysis technologies}
+\label{tab:data-souces}
+\end{table}
+
+Based on this table and for the particular case of the Unity Services Gateway, the team decided to continue the project with BigQuery. The main factor for making that decision was that it is already integrated into the cloud environment, and it is already being used in other parts of the technical stack.\\
+
+For the particular case of any other company trying to accommodate this solution for their specific case, it is vital to do an analysis depending on the business conditions and then decide accordingly using those three criteria.\\
 
 \subsection{Error visualization dashboard}
 
