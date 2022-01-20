@@ -1159,9 +1159,9 @@ This third criterion refers to the tool's capacity to be used in integration wit
 
 \subsubsection*{Data storage selection based on the criteria}
 
-Based on the three criteria, table \ref{tab:data-souces} contains a summary of the comparison between the three technologies.
+Based on the three criteria, table \ref{tab:data-souces} contains a summary of the comparison between the three technologies. Based on this table and for the particular case of the Unity Services Gateway, the team decided to continue the project with BigQuery. The main factor for making that decision was that it is already integrated into the cloud environment, and it is already being used in other parts of the technical stack.\\
 
-\begin{table}[h]
+\begin{table}[h!]
 \centering
 \begin{tabular}{|l|c|c|c|}
 \hline
@@ -1174,9 +1174,35 @@ PostgreSQL & \$109.9/month & Medium           & High             \\ \hline
 \label{tab:data-souces}
 \end{table}
 
-Based on this table and for the particular case of the Unity Services Gateway, the team decided to continue the project with BigQuery. The main factor for making that decision was that it is already integrated into the cloud environment, and it is already being used in other parts of the technical stack.\\
+For the particular case of any other company trying to accommodate this solution for their specific case, it is vital to do an analysis depending on the business conditions and then decide accordingly using those three criteria.
 
-For the particular case of any other company trying to accommodate this solution for their specific case, it is vital to do an analysis depending on the business conditions and then decide accordingly using those three criteria.\\
+\subsubsection{BigQuery setup}
+
+Once it is decided that BigQuery is the technology to go with this project, the next step will be to create the table containing the data and configuration. This can be easily done using the Google Cloud Console on the BigQuery section.\\
+
+First of all, the database has to be created under the target project on Google cloud. In our case, it is the \texttt{unity-services-foundation-stg} project for staging deployment and \texttt{unity-services-foundation-prd} for production deployment (figure \ref{fig:bigquery-creation}). In this case, two databases will be created with the exact schema both for staging and production to have separated the development environment with production, where the clients' errors will be stored.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.3]{src/thesis/img/technical-solution/table-creation.png}
+    \caption{Table creation on staging project, exactly the same setup is reproduced on production}
+    \label{fig:bigquery-creation}
+\end{figure}
+
+The schema of those databases will follow the events structure already explained in section \ref{sec:error-event-definition}. As can be seen on figure \ref{fig:bigquery-schema}, most of the variables are set to string as data type except for the required timestamp, used for data partitioning. It is also noticeable that all the columns set to \texttt{REQUIRED} on the database correspond to the common fields on the events previously explained in section \ref{sec:error-event-definition}. \\
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.3]{src/thesis/img/technical-solution/bigquery-schema.png}
+    \caption{Schema of the created BigQuery table}
+    \label{fig:bigquery-schema}
+\end{figure}
+
+The next steps will be to implement the data gathering on the gateway microservice and create a log sink (CITE-SECTION) for starting storing data on the warehouse.
+
+\subsubsection{Terraform implementation of the logs sink}
+
+\subsubsection{Event gathering implementation on Unity Services gateway}
 
 \subsection{Error visualization dashboard}
 
