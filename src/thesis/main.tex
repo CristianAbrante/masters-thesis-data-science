@@ -441,6 +441,10 @@ RPC          & Remote Procedure Call \\
 REP          & Request Execution Path \\
 RFC          & Request for comments \\
 BQ           & BigQuery \\
+VCS          & Version Control System\\
+JSON         & JavaScript Object Notation\\
+UI           & User Interface\\
+PR.          & Pull Request\\
 
 \end{tabular}
 
@@ -1450,6 +1454,14 @@ order by time
 \end{lstlisting}
 
 Finally, it is essential to notice that the extensibility of these panels is straightforward. If a new field is introduced on the gateway event (section \ref{sec:error-event-definition}), the only change on the dashboard side would be to duplicate one of the last panels and change the variable name on the SQL statement.
+
+\subsubsection{Grafana dashboard persistence}
+
+In this last section, it is going to be explained how the Grafana dashboard is persisted and correctly versioned. The objective is to have a way to recover the dashboard if something happens and not only rely on click-opts to create and save it. Additionally, the dashboard will be stored on a VSC so it can be versioned; thus, team members can review its new changes before deploying it.\\
+
+Once the dashboard is created, the next step is to generate a JSON file in the Grafana format \cite{GrafanaJson} through the UI. That JSON Document will be persisted in the private repository of the project. For doing that, a PR has to be created containing the copied file under the \texttt{monitoring/dashboard} directory. That particular file location is used because some company-wide automation deploys the dashboards located under that folder.\\
+
+After this first version is created, future changes or maintenance will follow this procedure: import the JSON file into Grafana, make the changes that are required, export the new JSON file replacing the old one in the repository, and finally create a new PR that explains the differences and that the team that owns the service has to review before being merged and deployed.
 
 \clearpage
 \section{Evaluation}
