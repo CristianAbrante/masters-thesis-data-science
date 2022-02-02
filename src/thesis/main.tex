@@ -3,7 +3,7 @@
 %%                                                                            %%
 %% An example for writting your thesis using LaTeX                            %%
 %% Original version and development work by Luis Costa, changes to the text   %% 
-%% in the Finnish template by Perttu Puska.                                   %%https://www.overleaf.com/project/60d1abb1a060481495674645
+%% in the Finnish template by Perttu Puska.                                   %%
 %% Support for Swedish added 15092014                                         %%
 %% PDF/A-b support added on 15092017                                          %%
 %% PDF/A-2 support added on 24042018                                          %%
@@ -444,7 +444,8 @@ BQ           & BigQuery \\
 VCS          & Version Control System\\
 JSON         & JavaScript Object Notation\\
 UI           & User Interface\\
-PR.          & Pull Request\\
+PR           & Pull Request\\
+GCP          & Google Cloud Plattform\\
 
 \end{tabular}
 
@@ -989,12 +990,7 @@ The fields that are included in the array are not going to be forwarded to the e
 %% In this section describe the different high level errors and the standard that we are defining for them.
 %% Check out the ones defined previously by Uber gateway API.
 
-\subsection{Error schema generator} %%% OPTIONAL
-
-%% Possible Open Source tool used to generate gateway routes schema definitions using a CLI.
-%% If implemented, describe it here.
-
-\subsection{Proof of concept using error rate tool}
+\subsection{Events collection and storage}
 
 %% The things that need to be covered here are:
 
@@ -1233,9 +1229,41 @@ The schema of those databases will follow the events structure already explained
 
 The next steps will be to implement the data gathering on the gateway microservice and create a log sink (CITE-SECTION) for starting storing data on the warehouse.
 
-\subsubsection{Terraform implementation of the logs sink}
-
 \subsubsection{Event gathering implementation on Unity Services gateway}
+\label{sec:event-gathering}
+
+\subsubsection{Log sink configuration}
+
+Section \ref{sec:event-gathering} explains that the events are collected using the standard Google Cloud logging tool on the Unity Services Gateway side. Still, for this project, it is not only needed to have the logs on the Google Cloud Logging, but it also needed to be persisted on a big data tool (in this case, BigQuery) for future analysis. GCP uses Sinks \cite{GCPSinks} to do this log routing and redirection, and this section explains how they were configured in this project.\\
+
+As the organization is using Terraform for configuring all the infrastructure, for creating this sink, a new Terraform resource (with type \texttt{google\_logging\_project\_sink} \cite{TerraformGoogleSink}) has to be added. Then the configuration has to be applied to take effect. On Terraform, the structure for creating the log sink is as follows:\\
+
+\begin{lstlisting}[language=json,firstnumber=1]
+resource "google_logging_project_sink" "log_sink" {
+  name                   = var.sink_name
+  destination            = "bigquery.googleapis.com/projects/${google_bigquery_dataset.dataset.project}/datasets/${google_bigquery_dataset.dataset.dataset_id}"
+  filter                 = var.filter
+  unique_writer_identity = true
+
+  bigquery_options {
+    use_partitioned_tables = true
+  }
+}
+\end{lstlisting}
+
+As it can be seen, this code is parametrized, as many BigQuery log sinks are used across the organization. To create a new sink, a new module has to be created that extends this base code:\\
+
+\begin{lstlisting}[language=json,firstnumber=1]
+module "unity_services_gateway_metrics_log_sink" {
+  source = "bigquery-logsink"
+
+  dataset_id = "unity_services_gateway_metrics"
+  sink_name  = "unity-services-gateway-metrics-stg-bigquery-log-sink"
+  filter     = "resource.type=\"k8s_container\" AND (labels.k8s-pod/app=\"unity-services-gateway-public\" OR labels.k8s-pod/app=\"unity-services-gateway-internal\") AND jsonPayload.key=\"METRICS\""
+}
+\end{lstlisting}
+
+This module extends the original log sink configuration, specifying a name for the log sink and the identifier for the BigQuery table where the log is going to be stored. One noticeable thing is that a filter is specified for distinguishing the logs containing the expected metrics. That is done by filtering only the records from the \texttt{unity-services-gateway-internal} or \texttt{unity-services-gateway-public} app, including the \texttt{"METRICS"} identifier.
 
 \subsection{Error visualization dashboard}
 
