@@ -302,6 +302,21 @@ text must be identical to the text on the abstract page.
       {]}{{{\color{delim}{]}}}}{1},
 }
 
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
 \lstset{
   	backgroundcolor=\color{background},
   	basicstyle=\normalfont\ttfamily,
@@ -1231,6 +1246,61 @@ The next steps will be to implement the data gathering on the gateway microservi
 
 \subsubsection{Event gathering implementation on Unity Services gateway}
 \label{sec:event-gathering}
+
+This section explains which concrete changes had been introduced on the Unity Services Gateway codebase to support the new events gathering.\\
+
+The first change introduced on the gateway consists of adding a wrapper JavaScript function to the Google Cloud Logger that will construct the event structure that BigQuery expects (explained in section \ref{sec:error-event-definition}). That function will be used instead of the current logger in the codebase where the events are triggered. The structure of the code is as follows:\\
+
+\begin{lstlisting}[language=JavaScript,firstnumber=1]
+const { logger } = require('@unity/node-monitoring');
+
+function log(
+  req,
+  {
+    quota,
+    source,
+    type,
+    apiVersion,
+    apiNamespace,
+    rateLimitReason,
+    group,
+    resourceId,
+  },
+) {
+  const organizationId = req.params?.organizationId ?? null;
+  const requestId = req?.context?.id ?? '';
+  const apiType = process.env.API_MODE ?? '';
+
+  const event = {
+    key: 'METRICS',
+    path: req.route.path,
+    url: req.url,
+    httpMethod: req.method,
+    customPath: `${req.method}_${req.route.path}`,
+    source,
+    type,
+    apiVersion,
+    apiNamespace,
+    rateLimitReason,
+    group,
+    resourceId,
+    apiType,
+    requestId,
+    organizationId,
+    quota,
+  };
+
+  logger.log(event);
+}
+
+module.exports = { log };
+\end{lstlisting}
+
+The logger function is straightforward, it mainly matches the object that is given as a parameter, and then it enriches some fields from the request that it is receiving. Those parameters are the Organization ID obtained from the path parameter and the Request ID, injected by the gateway in an intermediate middleware.\\
+
+As stated before, only the rate-limiting events are considered; thus, only those events have to be logged for this iteration. This means the function that performs the rate limiter has to be modified to include the logging using the previous utility. It is first essential to explain how the rate limit quota is calculated, for doing that, a Redis database is set up with the Organization ID and a numeric value that increments when a new request is resolved. When the quota is exceeded, a new event is triggered containing the information if there were too many requests per 30 minutes or second.\\
+
+Finally, it is relevant to state how the extensibility for this module will be done. If an additional field needs to be added to the database, then the logging function can be modified accordingly to contain it, and in the part of the codebase where that event is triggered, that logging function should be invoked. Apart from this, a default value should be set on this new field to ensure retro compatibility.
 
 \subsubsection{Log sink configuration}
 
