@@ -461,6 +461,7 @@ JSON         & JavaScript Object Notation\\
 UI           & User Interface\\
 PR           & Pull Request\\
 GCP          & Google Cloud Plattform\\
+CI           & Continuous Integration\\
 
 \end{tabular}
 
@@ -1564,25 +1565,43 @@ After this first version is created, future changes or maintenance will follow t
 \clearpage
 \section{Evaluation}
 
-%% The evaluation needs to be done for each of the artifacts separated:
+This section will cover the evaluation of the proposed framework. Two sub-sections are introduced for that purpose; the first will cover the internal evaluation techniques used to verify that it fulfilled the expectations; the second will compare the proposed framework against two of the most relevant tools already present in the industry.
 
-\subsection{Evaluation of the error schema generator} 
+\subsection{Internal evaluation of the proposed framework}
+% The different parts of the framework that are evaluated are the following:
+% - Evaluation of the event gathering code (using jest).
+% - Evaluation of the storage selection. Explain that there is the staging and the production data storage and that an script was created in order to inject data and try different configurations.
+% - For evaluating the Grafana dashboard we also created two instances.
+% - Create a tests script that will trigger some events on the gateway side and that was executed for the staging deployment
+% - Internal release with continuous feedback from the stakholders (APIs team, Gateway team and product managers).
 
-%% Add the testing here if implemented.
+This section will cover the different steps used internally for verifying the proper functioning of the proposed framework, not only from the technical point of view on the different phases but also from the expected requirements point of view.
 
-\subsection{Evaluation of the proof of concept}
+\subsubsection{Event gathering phase evaluation}
+\label{sec:event-gathering-eval}
 
-%% Here we can say two evaluation methods:
-%% - Test script in order to inject mock data and see if it is storing correctly the data.
-%% - Integration tests using jest on the gateway side.
-%% - Using Proof of concept in order to test how the database was doing.
-%% - Using staging and production in order to have different sources for the data.
+This first subsection covers the evaluation of the event gathering phase, which was initially introduced in section \ref{sec:event-gathering}. As explained before, this phase consisted of creating a wrapper logging function on the Unity Services Gateway codebase that will construct the event with the expected format, emitted to BigQuery afterward.\\
 
-\subsection{Evaluation of the visualization tool}
+For evaluating this logging function and correctly testing if the event mapping was done as expected, the selected methodology was doing a battery of unit tests that will be part of a CI pipeline that ensures the correct functioning of the service. The chosen library for this purpose was Jest, as it is already used on other parts of the service. The complete code of the test can be observed in appendix \ref{apx:jest-eval}.
 
-%% For the evaluation of the visualization tool we can explain the following:
-%% - Using mock data in order to iterate over the dashboards.
-%% - Using continuos reviews from the stakeholders. mention the API team and the gateway team.
+\subsubsection{Data pipeline, storage and visualization dashboard evaluation}
+
+The data pipeline, data storage, and error visualization dashboard were evaluated in several steps. One of the main characteristics of this evaluation is that for having a safe sandbox where to do testing for the development of this project and in the future, two different environments, staging, and production, were created. Production will contain the data and instances that will be delivered to the clients, and staging will be an exact clone where testing procedures should be executed.\\
+
+One of the first relevant tests was if the data was stored correctly in BigQuery. For doing that, a script that generated fake events was placed and connected to the data store in staging. That script inserted 10.000 events with the structure introduced in section \ref{sec:error-event-definition} on the staging instance of the dataset. This method allowed us to test that the event´s format was correct, and also, the fake data introduced can be used for testing the dashboards visualization afterward.\\
+
+Finally, for evaluating the visualization dashboard, there were two instances of it created in Grafana. One was extracting the data from the production database and the other from the staging database. The manual test done in that regard was checking that the data inserted before on the staging data source could be visualized as expected on the staging dashboard. Apart from that, the query structure was confronted with the BigQuery console results.
+
+\subsubsection{End to end evaluation}
+\label{sec:e2e-eval}
+
+The end-to-end evaluation consisted of deliberately generating error events on the Gateway service to check if there are correctly stored on the data source and visualized in the dashboard afterward. This step can only be done after deploying the event-gathering code on the staging environment and applying the terraform configuration for the log sinks and Grafana.\\
+
+As it was stated in section \ref{sec:error-event-definition}, the high-level events will only include rate-limiting in this first iteration of the framework. In that sense, to test if the errors are correctly stored and visualized, they must first be generated. A new bash script was created that will call different endpoints in a loop a certain number of times over the expected quota, thus causing the expected errors. The script can be observed in appendix \ref{apx:bash-script}.\\
+
+After creating and calling that script, the resulting events were observed on BigQuery and correctly visualized in the dashboard; thus, the framework could be safely deployed in the production environment.
+
+\subsection{Comparison with state-of-the-art gateway frameworks}
 
 \clearpage
 \section{Conclusions}
@@ -1598,4 +1617,109 @@ After this first version is created, future changes or maintenance will follow t
 
 \bibliographystyle{plain}
 \bibliography{bibliography}
+
+\clearpage
+\thesisappendix
+
+\section{Appendix 1}
+\label{apx:jest-eval}
+
+This appendix contains the code for the test case written in JavaScript using the framework Jest for evaluating the event gathering function on the Unity Services Gateway (section \ref{sec:event-gathering-eval}).
+
+\begin{lstlisting}[language=JavaScript,firstnumber=1]
+const { logger } = require('../../monitor');
+const { log } = require('./metrics');
+
+describe('metrics', () => {
+  let req;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.spyOn(logger, 'log');
+    req = {
+      route: {
+        path: '/url/:organizationId',
+      },
+      url: '/url/123',
+      method: 'get',
+      params: {
+        organizationId: 123,
+      },
+      context: {
+        id: 'abc-123',
+      },
+    };
+  });
+
+  it('should call logger one time', async () => {
+    log(req, {});
+    expect(logger.log).toHaveBeenCalledTimes(1);
+  });
+
+  it('should call logger with correct data', async () => {
+    log(req, {
+      quota: 10,
+      source: 'RATELIMITER',
+      type: 'QUOTA_EXCEEDED',
+      apiVersion: 1,
+      apiNamespace: 'advertise',
+      rateLimitReason: 'TOO_MANY_REQUESTS_PER_SECOND',
+      group: 'group-123',
+      resourceId: '*',
+      customPath: 'A-01:{#\\.}a/b',
+    });
+
+    expect(logger.log).toHaveBeenCalledWith({
+      key: 'METRICS',
+      path: '/url/:organizationId',
+      url: '/url/123',
+      httpMethod: 'get',
+      time: expect.any(String),
+      source: 'RATELIMITER',
+      type: 'QUOTA_EXCEEDED',
+      apiVersion: 1,
+      apiNamespace: 'advertise',
+      rateLimitReason: 'TOO_MANY_REQUESTS_PER_SECOND',
+      group: 'group-123',
+      resourceId: '*',
+      apiType: '',
+      requestId: 'abc-123',
+      organizationId: 123,
+      quota: 10,
+      severity: 'info',
+      customPath: 'a01a_b',
+    });
+  });
+});
+\end{lstlisting}
+
+Two test cases had been included, the first one tests if the Google Logger function had been called only once and the second one tests if the mapped event matches the expected structure.
+
+\clearpage
+\section{Appendix 2}
+\label{apx:bash-script}
+
+This appendix contains the script used for triggering the rate limiting events on several endpoints, introduced on section \ref{sec:e2e-eval}.
+
+\begin{lstlisting}[language=sql,firstnumber=1]
+for i in {1..4010}
+do
+   curl --request GET \
+  --url https://services.api.unity.com/advertise/v1/organizations/:organizationId/apps/ \
+  --header 'Authorization: Basic <service-account>'
+  
+  curl --request GET \
+  --url https://services.api.unity.com/advertise/v1/organizations/:organizationId/apps/:appId/campaigns \
+  --header 'Authorization: Basic <service-account>'
+  
+  curl --request GET \
+  --url https://services.api.unity.com/advertise/v1/organizations/:organizationId/apps/:appId/campaigns/:campaignId/budget \
+  --header 'Authorization: Basic <service-account>'
+done
+\end{lstlisting}
+
+Inside a loop that intends to exceed the established quota of 4000 calls per 30 minutes there are three calls to different endpoints. The concrete parameters for the endpoint are not included for privacy concerns.
+
+\clearpage
+
 \end{document}
