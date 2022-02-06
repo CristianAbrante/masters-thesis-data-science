@@ -488,11 +488,49 @@ CI/CD        & Continuous Integration and Continuous Deployment\\
 %% For the introduction I guess it can be mostly copied from the thesis proposal,
 %% anyway one of the last sections to write.
 
+Over the past few years, there has been debate on how to properly organize and deploy service-oriented architectures. One of the software architecture patterns that has gained the most popularity today is microservices \cite{MicroservicesAdoption}. Many large, medium and even small software companies have adopted this architecture because of its enormous benefits compared to traditional, monolithic software applications.\\
+
+Microservices are an extension of service-oriented architecture. The main objective is that each of these microservices provides a well-defined and clear scope of functionalities, which can be accessed by another microservice using \textit{remote procedure calls} \cite{nelson1981remote}. The main advantage of this pattern is that it can be established clear ownership of each microservice by different teams where they are responsible for the development, maintenance, and deployment. This is a clear advantage over the classic monolithic architecture, since in these, although the development tasks may be divided among different teams, the deployment of a single functionality involves the deployment of the entire system, which is then prone to cause major problems that can lead to the complete shutdown of the application.\\
+
+Although the microservices architecture represents a step forward in the design of software systems, it also has some drawbacks compared to monolithic architectures, such as performance. In a traditional monolithic application subroutine calls are something that can be solved within the same process and machine, however, in microservices, the call has to be made over the network, which is something that may eventually introduce some execution delays. Apart from this, there is another problem faced by microservices architectures, which is the orchestration of thousands of different microservices, when dealing with enterprises operating on a large scale. In this case, any problem caused by one microservice can spread across many of them, and engineers have to debug calls coming from a huge stack of different services, which is something that can be challenging and time-consuming.\\
+
+In order to provide an scope that would simplify the maintenance of the microservices set, many companies had adopted the \textbf{Domain Oriented Microservices Architecture} pattern \cite{DOMAUber}. Using this architecture, many microservices can be grouped within a logical division, called Domain, that fits the needs of the enterprise. To isolate the domains and make them easier to maintain and debug, one approach which can be applied is to create a common gateway that exposes the domain's interface (usually as routes that can be called with different HTTP methods). Apart from being the single point of entry for specific domains, the gateway can also provide different high-level responsibilities, such as authentication, routing, rate limiting, load balancing, etc. This pattern has been widely adopted by companies operating on a large scale, such as Uber \cite{GatewayUber} or Unity Technologies (Figure \ref{fig:unity-acquire-domain}).\\
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.3]{src/proposal/img/unity-services-diagram.png}
+    \caption{Domain-oriented microservices architecture structure in Unity Technologies}
+    \label{fig:unity-acquire-domain}
+\end{figure}
+
+The gateway is in itself another microservice, consequently the error monitoring of it is a crucial task for maintenance the overall health of the system. About microservices logging and monitoring there is already a well established action framework \cite{MicroservicesBestPractices}, which can be summarized as the storage of a log entry in a centralized server (for example Google Cloud or Amazon Web Services) for each request or error that it is produced in the system. Usually that is enough for tracing back each of the requests that the system is receiving.\\
+
+In the particular case of the \textbf{Unity Services Gateway}, which is the entry point of the acquire domain of Unity technologies, there are some questions raised about the high-level responsibilities of the gateway by project managers or development teams, such as: \textit{what users or organizations are hitting our rate limits?} \textit{What is the amount and frequency of authentication errors our system is having?}.\\
+
+The answers to those questions are relevant because some actions can be taking against malicious users which are doing too many queries to the system or directly some organizations can be contacted to check if their integration with the APIs that the company provides are working properly. Nevertheless, the current log setup, which is the classical microservices logging framework \cite{MicroservicesBestPractices}, is not enough for answering those questions. This is mainly due to the fact that the current log events only store the minimal piece of information required to trace back the request but do not contain complex fields, such as organization ids, paths for the request, rate limit quotas exceeded, etc.\\
+
+One might think that simply by extending the logs entry to contain more information is enough for solving this problem, nevertheless this simple approach is not effective due to some reasons. The first one is that the data needed for solving those questions has to be extracted from different sources, which is something that it is reasonable to do when dealing with errors but can not be generalized to all logs entries as would dramatically increase the processing time of the requests in a system that is receiving thousands of request per seconds. The second reason is that the logging tool is shared among many microservices, so none of them has to worry in how to communicate with the cloud provider, this is why it is better to keep simple the amount of fields that the logs are storing. The final reason is the single responsibility principle, as it seems sensible to separate the data store that would keep complex error fields that would solve high-level questions from the actual log registry that would keep track of the requests.\\
+
+Taking this into account, the objective of this thesis can be defined as determine the best way to monitor the errors produced by the high-level responsibilities of a Domain Oriented Microservice Architecture gateway.
+
 \subsection{Contributions}
 
 % Explain the contributions introduced in that thesis.
 
+This thesis proposes a monitoring framework for a Domain-Oriented Microservice Architecture gateway that allows stakeholders to observe the errors that the gateway is producing when performing its high-level operations. Particularly, the introduced framework offers the following characteristics:
+
+\begin{itemize}
+    \item Definition of a format that matches the high-level responsibilities that the DOMA gateway has to fulfill for every endpoint it serves.
+    \item Definition of an extensible error format that will be emitted by the gateway and stored on a data warehouse for the visualization and analysis afterward.
+    \item Creation of a cloud-agnostic data pipeline that transmits the errors from the emission on the gateway to the data storage.
+    \item Creation of a visualization dashboard that will retrieve the error data and visualize it in a convenient structure.
+\end{itemize}
+
+This framework is created for the particular case of the Unity Services Gateway, the DOMA gateway for Unity technologies, a highly-available service that handles thousands of requests per second. This service is managed by a growing team of engineers located in different parts of the world, so the main objective of this project is to give them visibility about the service's business logic.
+
 \subsection{Structure of the thesis}
+
+This thesis is divided into seven sections. The first one is the introduction, where the introduced contributions are highlighted. Section \ref{sec:background} is the background, where there is an overview of the company's architecture and a definition of the problem that will be tackled. Section \ref{sec:requirements-eng} covers requirements engineering, which defines and establishes the project's scope according to its stakeholders. Subsequently, section \ref{sec:literature-review} will give a literature review, introducing the different software architectures used nowadays, primarily focusing on DOMA. Furthermore, there is a high-level view of other industry-standard solutions for API gateways. Then, section \ref{sec:technical-solution} will explain the technical solution and all the created artifacts for the proposed framework. Also, section \ref{sec:evaluation} will explain the followed evaluation process, especially compared with other industry-standard solutions. Finally, in section \ref{sec:consclussion}, some conclusions to this work will be offered in addition to future work that can be done in this regard.
 
 % Easy section, it can be mostly written now.
 
@@ -633,6 +671,7 @@ The security team wants to know more when specific clients or users make several
 
 \clearpage
 \section{Requirements engineering}
+\label{sec:requirements-eng}
 
 %% Taking into consideration that everyone has clear who are the stakeholders and what is the structure of the
 %% company and the microservices involved, now we have to do the requirement analysis.
@@ -696,6 +735,7 @@ The objective of the thesis is to produce a series of software artifacts and sta
 
 \clearpage
 \section{Literature review}
+\label{sec:literature-review}
 
 %% In this section is where all the technologies used are reviewed. For sure having the following subsections:
 
@@ -894,6 +934,7 @@ As shown in figure \ref{fig:literature-review-comparison}, the work presented in
 
 \clearpage
 \section{Technical solution}
+\label{sec:technical-solution}
 
 ®COMPLETE-SECTION -> ON THIS PART GIVE A BRIEF INTRODUCTION ON WHICH ARE THE TECHNICAL SOLUTIONS DEVELOPED.
 
@@ -1567,6 +1608,7 @@ After this first version is created, future changes or maintenance will follow t
 
 \clearpage
 \section{Evaluation}
+\label{sec:evaluation}
 
 This section will cover the evaluation of the proposed framework. Two sub-sections are introduced for that purpose; the first will cover the internal evaluation techniques used to verify that it fulfilled the expectations; the second will compare the proposed framework against two of the most relevant tools already present in the industry.
 
@@ -1668,6 +1710,7 @@ Table \ref{tab:frameworks} summarizes the comparison between the different frame
 
 \clearpage
 \section{Conclusions}
+\label{sec:consclussion}
 
 %% This part is almost the last one to write, basically write some pages of conclussions, and offer future work
 
