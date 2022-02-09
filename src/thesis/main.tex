@@ -419,33 +419,7 @@ Otaniemi, 31.12.2020
 
 
 %% Symbols and abbreviations
-\mysection{Symbols and abbreviations}
-
-\subsection*{Symbols}
-
-\begin{tabular}{ll}
-$\mathbf{B}$  & magnetic flux density  \\
-$c$              & speed of light in vacuum $\approx 3\times10^8$ [m/s]\\
-$\omega_{\mathrm{D}}$    & Debye frequency \\
-$\omega_{\mathrm{latt}}$ & average phonon frequency of lattice \\
-$\uparrow$       & electron spin direction up\\
-$\downarrow$     & electron spin direction down
-\end{tabular}
-
-\subsection*{Operators}
-
-\begin{tabular}{ll}
-$\nabla \times \mathbf{A}$              & curl of vectorin $\mathbf{A}$\\
-$\displaystyle\frac{\mbox{d}}{\mbox{d} t}$ & derivative with respect to 
-variable $t$\\[3mm]
-$\displaystyle\frac{\partial}{\partial t}$  & partial derivative with respect 
-to variable $t$ \\[3mm]
-$\sum_i $                       & sum over index $i$\\
-$\mathbf{A} \cdot \mathbf{B}$    & dot product of vectors $\mathbf{A}$ and 
-$\mathbf{B}$
-\end{tabular}
-
-\subsection*{Abbreviations}
+\mysection{Abbreviations}
 
 \begin{tabular}{ll}
 SOA          & Service oriented architecture \\
@@ -463,6 +437,7 @@ PR           & Pull Request\\
 GCP          & Google Cloud Plattform\\
 CI           & Continuous Integration\\
 CI/CD        & Continuous Integration and Continuous Deployment\\
+gRPC         & Google Remote Procedure Call\\
 
 \end{tabular}
 
@@ -507,7 +482,7 @@ The gateway is in itself another microservice, consequently the error monitoring
 
 In the particular case of the \textbf{Unity Services Gateway}, which is the entry point of the acquire domain of Unity technologies, there are some questions raised about the high-level responsibilities of the gateway by project managers or development teams, such as: \textit{what users or organizations are hitting our rate limits?} \textit{What is the amount and frequency of authentication errors our system is having?}.\\
 
-The answers to those questions are relevant because some actions can be taking against malicious users which are doing too many queries to the system or directly some organizations can be contacted to check if their integration with the APIs that the company provides are working properly. Nevertheless, the current log setup, which is the classical microservices logging framework \cite{MicroservicesBestPractices}, is not enough for answering those questions. This is mainly due to the fact that the current log events only store the minimal piece of information required to trace back the request but do not contain complex fields, such as organization ids, paths for the request, rate limit quotas exceeded, etc.\\
+The answers to those questions are relevant because some actions can be taking against malicious users which are doing too many queries to the system or directly some organizations can be contacted to check if their integration with the APIs that the company provides are working properly. Nevertheless, the current log setup, which is the classical microservices logging framework \cite{MicroservicesBestPractices}, is not enough for answering those questions. This is mainly due to the fact that they only store the minimal piece of information required to trace back the request but do not contain complex fields, such as organization ids, paths for the request, rate limit quotas exceeded, etc.\\
 
 One might think that simply by extending the logs entry to contain more information is enough for solving this problem, nevertheless this simple approach is not effective due to some reasons. The first one is that the data needed for solving those questions has to be extracted from different sources, which is something that it is reasonable to do when dealing with errors but can not be generalized to all logs entries as would dramatically increase the processing time of the requests in a system that is receiving thousands of request per seconds. The second reason is that the logging tool is shared among many microservices, so none of them has to worry in how to communicate with the cloud provider, this is why it is better to keep simple the amount of fields that the logs are storing. The final reason is the single responsibility principle, as it seems sensible to separate the data store that would keep complex error fields that would solve high-level questions from the actual log registry that would keep track of the requests.\\
 
@@ -520,17 +495,17 @@ Taking this into account, the objective of this thesis can be defined as determi
 This thesis proposes a monitoring framework for a Domain-Oriented Microservice Architecture gateway that allows stakeholders to observe the errors that the gateway is producing when performing its high-level operations. Particularly, the introduced framework offers the following characteristics:
 
 \begin{itemize}
-    \item Definition of a format that matches the high-level responsibilities that the DOMA gateway has to fulfill for every endpoint it serves.
+    \item Definition of a format that matches the high-level responsibilities that the DOMA gateway has to fulfill for every endpoint it exposes.
     \item Definition of an extensible error format that will be emitted by the gateway and stored on a data warehouse for the visualization and analysis afterward.
     \item Creation of a cloud-agnostic data pipeline that transmits the errors from the emission on the gateway to the data storage.
     \item Creation of a visualization dashboard that will retrieve the error data and visualize it in a convenient structure.
 \end{itemize}
 
-This framework is created for the particular case of the Unity Services Gateway, the DOMA gateway for Unity technologies, a highly-available service that handles thousands of requests per second. This service is managed by a growing team of engineers located in different parts of the world, so the main objective of this project is to give them visibility about the service's business logic.
+This framework is created for the particular case of the Unity Services Gateway, the DOMA gateway for Unity technologies, a highly-available service that handles thousands of requests per second, and that it is managed by a growing team of engineers located in different parts of the world.
 
 \subsection{Structure of the thesis}
 
-This thesis is divided into seven sections. The first one is the introduction, where the introduced contributions are highlighted. Section \ref{sec:background} is the background, where there is an overview of the company's architecture and a definition of the problem that will be tackled. Section \ref{sec:requirements-eng} covers requirements engineering, which defines and establishes the project's scope according to its stakeholders. Subsequently, section \ref{sec:literature-review} will give a literature review, introducing the different software architectures used nowadays, primarily focusing on DOMA. Furthermore, there is a high-level view of other industry-standard solutions for API gateways. Then, section \ref{sec:technical-solution} will explain the technical solution and all the created artifacts for the proposed framework. Also, section \ref{sec:evaluation} will explain the followed evaluation process, especially compared with other industry-standard solutions. Finally, in section \ref{sec:consclussion}, some conclusions to this work will be offered in addition to future work that can be done in this regard.
+This thesis is divided into seven sections. The first one is the introduction, where the proposed contributions are highlighted. Section \ref{sec:background} is the background, where there is an overview of the company's architecture and a definition of the problem that will be tackled. Section \ref{sec:requirements-eng} covers requirements engineering, which defines and establishes the project's scope according to its stakeholders. Subsequently, section \ref{sec:literature-review} will give a literature review, introducing the different software architectures used nowadays, primarily focusing on DOMA. Furthermore, there is a high-level view of other industry-standard solutions for API gateways. Then, section \ref{sec:technical-solution} will explain the technical solution and all the created artifacts for the proposed framework. Also, section \ref{sec:evaluation} will explain the followed evaluation process, especially compared with other industry-standard solutions. Finally, in section \ref{sec:consclussion}, some conclusions to this work will be offered in addition to future work that can be done in this regard.
 
 % Easy section, it can be mostly written now.
 
@@ -602,7 +577,7 @@ The architecture of UnityAds has changed dramatically over the past decade. Init
     \label{fig:background:applifier-architecture}
 \end{figure}
 
-This almost \textit{monolithic architecture} \cite{de2019monolithic} impacted the startup times, as it was convenient for a small engineering team to introduce changes to it, which allowed them to achieve a solid customer base prior to the Unity acquisition \cite{ApplifierCustomers}. But when scalability started to become a fundamental requirement, there were some pain points they had to address. On the one hand, the database was the junction point between the services and the mechanism they used to communicate, which was limiting and error-prone, and on the other hand, this architecture was not suitable to be managed by a growing team of engineers. Due to this, migration started into a microservices-oriented architecture (Section \ref{sec:microservices-architecture}). This means that now the database is not the single point of communication, and each of the services would need an independent database to store the data they needed to operate. The acquire and monetize units can easily be decoupled using that paradigm, and different teams could work independently. This initiative led the company to its current situation, which can be observed in figure \ref{fig:background:acquire-architecture}.\\
+This almost \textit{monolithic architecture} \cite{de2019monolithic} was convenient for a small engineering team to introduce changes to it, which allowed them to achieve a solid customer base prior to the Unity acquisition \cite{ApplifierCustomers}. But when scalability started to become a fundamental requirement, there were some pain points they had to address. On the one hand, the database was the junction point between the services and the mechanism they used to communicate, which was limiting and error-prone, and on the other hand, this architecture was not suitable to be managed by a growing team of engineers. Due to this, migration started into a microservices-oriented architecture (Section \ref{sec:microservices-architecture}). This means that now the database is not the single point of communication, and each of the services would need an independent database to store the data they needed to operate. The acquire and monetize units can easily be decoupled using that paradigm, and different teams could work independently. This initiative led the company to its current setup, which can be observed in figure \ref{fig:background:acquire-architecture}.\\
 
 \begin{figure}[h!]
     \centering
@@ -611,11 +586,11 @@ This almost \textit{monolithic architecture} \cite{de2019monolithic} impacted th
     \label{fig:background:acquire-architecture}
 \end{figure}
 
-On this new setup, Monetization and Acquire can be considered domains on the domain-oriented microservice architecture (DOMA) of UnityAds (Section \ref{sec:domain-oriented-microservices-architecture}), where different protocols are used for the intra-domain and extra-domain communication, such as NATS \cite{srisuresh2008state}, Kafka \cite{kreps2011kafka}, HTTP \cite{durumeric2013analysis}, or even gRPC \cite{wang1993grpc}.\\
+On this new setup, Monetization and Acquire can be considered domains on the domain-oriented microservice architecture (DOMA) of UnityAds (section \ref{sec:domain-oriented-microservices-architecture}), where different protocols are used for the intra-domain and extra-domain communication, such as NATS \cite{srisuresh2008state}, Kafka \cite{kreps2011kafka}, HTTP \cite{durumeric2013analysis}, or even gRPC \cite{wang1993grpc}. Moreover, the Unity Services Gateway serves as the single entry point for the domain, and the backend microservices.
 
 \subsubsection{Microservices monitoring}
 
-The last step to understand UnityAds architecture is to explain how microservice monitoring is done (Section \ref{sec:observability-monitoring}). It is essential to state that all the architecture is deployed on Google Cloud \cite{aceto2013cloud}, which already offers some pre-defined tools that make life easier to operate the product.\\
+The last step to understand UnityAds architecture is to explain how microservice monitoring is done. It is essential to state that all the architecture is deployed on Google Cloud \cite{aceto2013cloud}, which already offers some pre-defined tools that simplify the operation of the product. Apart from that, on figure \ref{fig:background:monitoring} it can be seen the selected monitoring technologies for the Acquire architecture.\\
 
 \begin{figure}[h]
     \centering
@@ -624,7 +599,7 @@ The last step to understand UnityAds architecture is to explain how microservice
     \label{fig:background:monitoring}
 \end{figure}
 
-Figure \ref{fig:background:monitoring} shows a diagram that represents the selected monitoring technologies for the Acquire architecture. As stated before, this architecture is running on a Kubernetes cluster that is deployed on Google Cloud \cite{hunter2018google}. That makes it easier to use log sinks to transfer the logs to the standard google cloud logging tool. But logging is only one of the relevant parts for monitoring, as metrics are also essential to know the overall system's health.\\
+This architecture is running on a Kubernetes cluster that is deployed on Google Cloud \cite{hunter2018google}. For logging, the services are using the standard Google Cloud Logging tool \cite{GoogleLogging}, which simplifies the process for the storage and exploration of them. But logging is only one of the relevant parts for monitoring, as metrics are also essential to know the overall system's health.\\
 
 In order to collect the metrics for the different microservices of the system, Prometheus \cite{turnbull2018monitoring} is the selected tool. It works by pulling relevant metrics from microservices and infrastructure, and afterward, those metrics can be accessed using its custom query language. On top of it, some Grafana dashboards \cite{hoang2020research} can be handcrafted to visualize those metrics on time series plots. This typical setup works well as it combines the possibility of exploring error logs and even tracing the endpoint calls for the microservices on a fine granularity, using standard Google Cloud tools such as the profiler \cite{thakurratan2018google}, and at the same time presents a visual representation for the metrics of the system, such as error rate, uptime or throughput, using a time-series format.\\
 
@@ -647,27 +622,29 @@ In order to collect the metrics for the different microservices of the system, P
 
 Even though the monitoring setup adopted by the Acquire unit on UnityAds works well in many cases, it has some limitations related to the monitoring of the Unity Services Gateway. First of all, it is noteworthy to say that Unity Services Gateway is another microservice, so the setup represented in figure \ref{fig:background:monitoring} is enough for metrics and architecture monitoring. Nevertheless, it has some limitations for business logic monitoring \cite{von2009decision}.\\
 
-A gateway of a Domain-Oriented microservices architecture (DOMA) is in charge of handling some high-level responsibilities (Section \ref{sec:microservices-gateway}). The main advantage is that those tasks are shared across microservices, so there is a single place where this logic is implemented and maintained. But also, the teams responsible for the microservices that are directly dependant on the gateway might want some visibility on the events generated by handling that logic.\\
+A gateway of a Domain-Oriented microservices architecture (DOMA) is in charge of handling some high-level responsibilities (section \ref{sec:microservices-gateway}). The main advantage of that setup, is that those tasks are shared across microservices and there is a single place where this logic is implemented and maintained. But on the other hand, the teams responsible for the microservices that are directly dependant on the gateway might want some visibility on the events generated by handling that logic.\\
 
-To give a concrete example for this problem, let's consider only rate-limiting responsibility \cite{raghavan2007cloud}, which is vital to prevent common attacks \cite{jhaveri2012attacks}. The gateway's commitment corresponds to automatically rejecting the requests that had tried to access the server multiple times. To do that, it has to keep a temporal database that stores the count for how many requests the user had done on a concrete time window.\\
+To give a concrete example for this problem, let's consider only rate-limiting responsibility \cite{raghavan2007cloud}, which is vital to prevent common attacks \cite{jhaveri2012attacks} such as DDoS \cite{mirkovic2004taxonomy} or unlimited API scraping \cite{WebScrap}. The gateway's commitment corresponds to automatically rejecting the requests that had tried to access the server multiple times. To do that, it has to keep a temporal database that stores the count for how many requests the user had done on a concrete time window.\\
 
-Considering this error type, different stakeholders would be interested in knowing more about the events associated with this error and that currently don't have that much information. The following subsections are going to introduce them.
+Considering this error type, different stakeholders would be interested in knowing more about the events associated with this error and that currently don't have that much information. The following subsections are will introduce them.
 
 \subsubsection*{Public APIs team}
 
-This team is responsible for developing a set of public APIs that allow advertisers to manage their advertisement campaigns programmatically. In Figure \ref{fig:background:acquire-architecture}, it can be seen that the service owned by this team serves as a proxy between the backends and the API client. Usually, those clients are advertisers that have built custom integrations with UnityAds and want to run adverts on different platforms at the same time to maximize the visibility of their campaigns.\\
+This team is responsible for developing a set of public APIs that allow advertisers to manage their advertisement campaigns programmatically. Usually, those advertisers had built custom integrations with UnityAds and want to run adverts on different platforms simultaneously to maximize the visibility of their campaigns.\\
 
-The engineering team is contacted when some advertiser is constantly receiving errors from the APIs because it has reached the established rate limit for the endpoint they are trying to consume. This can happen for a variety of reasons, maybe they want to fetch a resource that needs multiple calls to be completed, or there is an error in the implementation that causes the endpoint to be called enough times to hit the rate limit. With the current setup, it is tough to trace back the reasons as even if the engineering team can access the logs, as they might not contain all the information in a convenient format. Another drawback is that the engineering team does not notice the problem beforehand, but only after it happens and the clients have already contacted them.
+The engineering team is contacted when some advertiser is constantly receiving errors from the APIs because it has reached the established rate limit for the endpoint they are trying to consume. This can happen for a variety of reasons, maybe they want to fetch multiple resources at the same time, or there is an error in the implementation that causes the endpoint to consume the rate limit quota. With the current setup, it is tough to trace back the reasons as even if the engineering team can access the logs, as they might not contain all the information in a convenient format.
+
+% Another drawback is that the engineering team does not notice the problem beforehand, but only after it happens and the clients have already contacted them.
 
 \subsubsection*{Product managers and client partners}
 
-Product managers and client partners are the intermediaries between the engineering team and the clients that consume the APIs or any other connected service through the gateway. This is also why they want to get some visibility in which clients are hitting the rate limits on the gateway level. If they could identify if any client is hitting the rate limits, they can contact them directly to ensure that their integration or their usage of the company's services is correct and give assistance in that regard if needed. In that way, customer satisfaction could be improved with respect to the current status, where is the client who usually contacts if they are experimenting many errors.\\
+Product managers and client partners are the intermediaries between the engineering team and the clients that consume the APIs or any other connected service through the gateway. This is also why they want to get some visibility in which clients are hitting the rate limits on the gateway level as they can contact them directly to ensure that their integration or their usage of the company's services is correct and give assistance in that regard if needed. In that way, customer satisfaction could be improved with respect to the current status, where is the client who usually contacts if they are experiencing some errors.\\
 
 In that sense, this team is interested in having some visual tool to access that information because accessing the logs console using a series of queries requires some previous background that those professionals might not have.
 
 \subsubsection*{Security team}
 
-The security team wants to know more when specific clients or users make several requests to the services. Because in case that it is not an already identified client, which can be directly contacted, but another malicious user, they can ban him to prevent any further attack \cite{jhaveri2012attacks}.
+The security team wants to know more when specific clients or users make several requests to the services. In case those calls are coming from a malicious user or a not-identified client, it could be banned for preventing any further attack \cite{jhaveri2012attacks}.
 
 \clearpage
 \section{Requirements engineering}
@@ -739,7 +716,7 @@ The objective of the thesis is to produce a series of software artifacts and sta
 
 %% In this section is where all the technologies used are reviewed. For sure having the following subsections:
 
-This section aims to provide a broad review of some topics relevant to the development of this thesis. The first subsection provides a review of today's essential service architectures, including the new DOMA architecture. The second subsection provides a review of observability and monitoring issues.
+This section aims to provide a broad review of some topics relevant to the development of this thesis. The first subsection provides a review of today's essential service architectures, including the new DOMA architecture. The second subsection provides a review of observability and monitoring issues. REWORD-THIS!!!!
 
 \subsection{Software architectures review}
 
@@ -750,7 +727,7 @@ This section aims to provide a broad review of some topics relevant to the devel
 %% - Microservces architecture.
 %% - Domain oriented microservices architecture. Maybe introduce the gateway here or in another page.
 
-Domain Oriented Microservices Architecture (DOMA) is the paradigm that many medium and large organizations are adopting to organize their software systems and the most suitable to describe the software architecture of the Acquire unit (Section  \ref{sec:acquire-architecture}). This section offers a review of the software architectures that led to the establishment of DOMA as the state-of-the-art.\\
+Domain Oriented Microservices Architecture (DOMA) is the paradigm that many large organizations are adopting to organize their software systems and the most suitable to describe the software architecture of the Acquire unit (Section  \ref{sec:acquire-architecture}). This section offers a review of the software architectures that led to the development of DOMA.\\
 
 Software architecture is a fundamental topic in software engineering. Its main objective is to investigate the optimal way to organize software processes and artifacts to ensure that they can function properly and communicate with each other to accomplish their tasks \cite{shadija2017towards}. According to E. Perry and L. Wolf \cite{perry1992foundations}, the term \textit{"architecture"} was introduced into software engineering in the 1980s to evoke the notions of abstraction and coding. It is still relevant today to define the layout of software systems in different enterprises.\\
 
@@ -778,7 +755,7 @@ Even though SOA is a giant step forward in the design of software systems, mainl
     \label{fig:soa-architecture}
 \end{figure}
 
-This software architecture might be helpful in the initial stage of companies or organizations, where services are minimal and the functionalities are not entirely developed. But the pain points might arise when operating on a different scale. The initial architecture of Applifier can be considered as SOA (Figure \ref{fig:background:applifier-architecture}), as it shared the same structure and had to deal with similar drawbacks.
+This software architecture might be helpful in the initial stage of companies or organizations, where services are minimal and the functionalities are not entirely developed. But the pain points might arise when operating on a different scale. The initial architecture of Applifier can be considered as SOA (figure \ref{fig:background:applifier-architecture}), as it shared the same structure and had to deal with similar drawbacks.
 
 \subsubsection{Microservices architecture}
 \label{sec:microservices-architecture}
@@ -808,7 +785,7 @@ Following the classification of Lewis et al. \cite{MicroservicesCharacteristics}
     \label{fig:microservices-architecture}
 \end{figure}
 
-Microservices represent a giant step forward in developing software architectures, as they present many \textit{operational} benefits compared to SOA. Nevertheless, they are not a silver bullet as it also introduces some significant drawbacks, such as:
+Microservices represent a giant step forward in developing software architectures, as they present many \textit{operational} benefits compared to SOA. Nevertheless, they are not a silver bullet as they also introduces some significant drawbacks, such as:
 
 \begin{itemize}
     \item The introduction of performance issues. The remote procedure calls (RPC) used between microservices to communicate can introduce some delays as they have to be resolved over the network.
@@ -838,7 +815,7 @@ DOMA is a new software design pattern iteration that tries to tackle these probl
 \begin{figure}[h!]
     \centering
     \includegraphics[scale=0.3]{src/thesis/img/literature-review/doma.png}
-    \caption{DOMA architecture diagram, representing the possible }
+    \caption{DOMA architecture diagram, with representation of the two communication types}
     \label{fig:my_label}
 \end{figure}
 
@@ -848,7 +825,7 @@ DOMA is adopted on organizations as an iteration of a pre-existent microservices
     \item \textbf{Domains}: A domain is a collection of related microservices. The main design challenge of this element is to decide how big the domain should be and how many microservices should contain.
     \item \textbf{Layers}: A layer is a collection of domains. The primary behavioral change is that we can consider that the layers are grouped into a stack, where the layer defines the dependencies between the domains that they belong to in the pyramid.
     \item \textbf{Gateway}: The gateway is the single point of access of each domain. It is the public interface of the domain, and it should prevent access to individual services and implement several high-level responsibilities.
-    \item \textbf{Extension architecture}: the extension mechanism is a procedure for adding extra functionalities to the ones already present on the domain. This is important to respect the open-closed principle of the domain. It is important to remark that this can not be achieved on all domains as it depends on the nature of the domain's data.
+    \item \textbf{Extension architecture}: the extension mechanism is a procedure for adding extra functionalities. This is important to respect the open-closed principle of the domain. It is remarkable to state that this can not be achieved on all domains as it depends on the nature of the handled data.
 \end{itemize}
 
 The introduction of DOMA is recent, so there is not much research on how to populate those four elements with concrete business requirements to transition a microservices architecture into a successful DOMA. The only available public example is offered in the article by Uber Engineering \cite{DOMAUber}, where they provide an interesting view on how to distribute the layers pyramidally, where the base of the pyramid represents broad functionalities that can be used across the organization, such as storage or networking services. In contrast, concrete client-facing functionalities are at the top of the pyramid. This interesting approach guarantees that the layers are isolated, and dependencies flow from top to bottom.
@@ -908,7 +885,7 @@ It is common to confuse both observability and monitoring as their objective is 
 
 On the other hand, observability is similar on purpose but different on methodology. Rudolph E. Kalman introduced the term observability in 1960 on the control systems field \cite{kalman1960general}. The basic definition is: \textit{"Observability is a measure of the wellness of the internal state of a system inferred from the knowledge of its external outputs."} Even if it was first invented for the control systems field, observability has been applied to modern software architectures, such as microservices. Attending to that classic definition, the inference of the internal state had to be done by producing a set of outputs from the highly-observable software service that it is being maintained, and that is done by generating a set of logs and traces \cite{picoreti2018multilevel}.\\
 
-In that regard, to investigate \textbf{Q1} and generate a valuable solution, it is needed to create an observability + monitoring tool. The observability side of the project will be responsible for the generation of logs that will contain enough information about the internal state and the high-level errors that the gateway handled. On top of it, a monitoring platform had to be created to visualize those responsibilities graphically, hence answering \textbf{Q3}.\\
+In that regard, to investigate \textbf{Q1} and generate a valuable solution, it is needed to create an observability + monitoring tool. The observability side of the project will be responsible for the generation of logs that will contain enough information about the internal state and the high-level errors that the gateway handled. On top of it, a monitoring platform had to be created to visualize those responsibilities graphically, hence addressing \textbf{Q3}.\\
 
 \subsection{Previous work}
 
@@ -936,14 +913,14 @@ As shown in figure \ref{fig:literature-review-comparison}, the work presented in
 \section{Technical solution}
 \label{sec:technical-solution}
 
-®COMPLETE-SECTION -> ON THIS PART GIVE A BRIEF INTRODUCTION ON WHICH ARE THE TECHNICAL SOLUTIONS DEVELOPED.
+%% The outcome of this thesis are 3 technical solutions.
 
-%% The outcome of this thesis are basically 4 technical solutions.
+This section will cover the technical solution developed on the scope of this thesis. The first subsection will introduce the gateway configuration file, the contract used to match the endpoints that the gateway exposes with the high-level responsibilities it will address. The second subsection will explain the error definition format and the data pipeline implemented to store the errors generated at the gateway level. Finally, the third subsection will introduce the visualization dashboard for the gateway errors.
 
 \subsection{Gateway configuration file}
 \label{sec:gateway-configuration-file}
 
-After having discussed the high-level responsibilities that the gateway of a DOMA should have (section \ref{sec:microservices-gateway}), in this chapter, one of the main outputs obtained from this thesis is introduced, which is the definition of a route-level configuration format for the gateway, in order to solve \textbf{Q1}.\\
+After having discussed the high-level responsibilities that the gateway of a DOMA should have (section \ref{sec:microservices-gateway}), in this chapter, one of the main outputs obtained from this thesis is introduced, which is the definition of a route-level configuration format for the gateway in order to solve \textbf{Q1}.\\
 
 A route-level configuration format is a standard that can be used to state down all the resources that the gateway of the domain exposes to the public and the associated responsibilities attached to each route. Having this standard defined will have many significant advantages, such as:
 
@@ -951,20 +928,18 @@ A route-level configuration format is a standard that can be used to state down 
     \item It can be used as the primary source of truth of the resources that the gateway exposes.
     \item The generation of the endpoint's documentation can be automatized; therefore, all the teams involved in the microservices do not need to do it by themselves.
     \item This standard defines a contract on what the endpoint handlers should do when managing the responsibilities. The engineers that are going to implement the proxy should fulfill the specifications of the standards, and the endpoints consumer should rely on those responsibilities.
-    \item There are some literature examples of composable gateway logic \cite{UberGateway}; this standard can be the consuming point of this automated gateway generator. 
+    \item There are some literature examples of composable gateway logic \cite{UberGateway}; this standard can be the starting point of this automated gateway generator. 
 \end{itemize}
 
-JSON schema is the standard that will be used for defining the gateway configuration file. The primary purpose of using that schema is that several tools can be used to validate the configuration file against the schema, such as \texttt{ajv} \cite{AjvTool} or \texttt{is-my-json-valid} \cite{IsMyJsonValid}. The schema is defined using JSON format, and it is publicly available on the open-source repository for this project (CITE-SECTION).\\
-
-Even though the schema is written in a JSON format, we can expect to have either JSON or YAML for the actual configuration file, as it is more human-readable. With the independence of the format used, the file should match the specified validation.\\
-
-In the following subsections, there is going to be an explanation of the general structure of this configuration file, as well as each filter that can be specified to fulfill each gateway's responsibilities (section \ref{sec:microservices-gateway}).
+In the following subsections, there is going to be an explanation of the general structure of this configuration file, using YAML as the format, as well as each filter that can be specified to fulfill each gateway's responsibilities (section \ref{sec:microservices-gateway}).
 
 \subsubsection*{General structure}
 
-The general structure of the configuration file is going to be as follows: \\
+The general structure of the configuration file is as follows: \\
 
-\begin{lstlisting}[language=json,firstnumber=1]e
+\clearpage
+
+\begin{lstlisting}[language=json,firstnumber=1]
 - path: path/to/my/resource
   envs: ['prd', 'stg', ... ]
   methods: ['get', 'post', 'put' ... ]
@@ -973,7 +948,7 @@ The general structure of the configuration file is going to be as follows: \\
   transport: 'http'
 \end{lstlisting}
 
-There will be one entry per resource on the gateway configuration file, and the following elements will specify each entry:
+There is one entry per resource on the gateway configuration file, and the following elements will specify each entry:
 
 \begin{itemize}
     \item \texttt{path}: This is the URL that will be used to do the operation on the system, and it is also the identifier of the resource.
@@ -987,7 +962,7 @@ There will be one entry per resource on the gateway configuration file, and the 
 
 The first filter specified, which is going to be contained under the \texttt{endpointFilters} specification, is going to be the filter used for the auditing responsibility of the gateway. The structure is as follows:\\
 
-\begin{lstlisting}[language=json,firstnumber=1]e
+\begin{lstlisting}[language=json,firstnumber=1]
   endpointFilters:
     - auditing: boolean
 \end{lstlisting}
@@ -998,7 +973,7 @@ To keep this filter simple, there will be only a boolean flag that will determin
 
 This filter specifies if there has to be any authentication or authorization for consuming the endpoint resources. The structure of the filter is:\\
 
-\begin{lstlisting}[language=json,firstnumber=1]e
+\begin{lstlisting}[language=json,firstnumber=1]
   endpointFilters:
     - authentication: service-account | OAuth
     - authorization:
@@ -1016,20 +991,20 @@ On the authorization side, the consideration has been to use Role-Based Access C
 
 Rate limiting filter defines the number of access that the gateway will accept on a certain period of time. The structure of the filter is the following: \\
 
-\begin{lstlisting}[language=json,firstnumber=1]e
+\begin{lstlisting}[language=json,firstnumber=1]
   endpointFilters:
     - httpMethods: [get, put, patch, delete] // http methods to limit
     - perSecond: {prd: 6, stg: 100, local: 10000}
     - perThirtyMinutes: 4000
 \end{lstlisting}
 
-There are three fields that the filter accepts; the first one is the HTTP methods that are considered for the rate-limiting, the second is the number of accesses that the gateway accepts in one second, and the third one is the number of access that it accepts in thirty minutes. For the last two properties, it can be specified the number of accesses or an object with three properties referring to the three possible environments where the application is deployed and a number for the rate-limiting on those.
+There are three fields that the filter accepts; the first one is the HTTP methods that are considered for the rate-limiting, the second is the number of accesses that the gateway accepts in one second, and the third one is the number of access that it accepts in thirty minutes. For the last two properties, it can be specified the number of accesses or an object with three properties referring to the three possible environments and a number for the rate-limiting on those.
 
 \subsubsection*{Documentation filter}
 
-This simple filter specifies if any documentation for the endpoint at the gateway level has to be produced. This makes sense because there might be private endpoints where the consumption is done only within the organization, so creating external documentation might not be desired. The structure of it is as follows:\\
+This simple filter specifies if any documentation for the endpoint at the gateway level has to be produced. There might be private endpoints where the consumption is done only within the organization, so creating external documentation might not be desired. The structure of it is as follows:\\
 
-\begin{lstlisting}[language=json,firstnumber=1]e
+\begin{lstlisting}[language=json,firstnumber=1]
   endpointFilters:
     - documentation: boolean
 \end{lstlisting}
@@ -1038,7 +1013,7 @@ This simple filter specifies if any documentation for the endpoint at the gatewa
 
 As the gateway should work as the proxy for all the microservices under a domain, we may want some fields not exposed outside of it, which is the purpose of the response field trimming. The structure is as follows:\\
 
-\begin{lstlisting}[language=json,firstnumber=1]e
+\begin{lstlisting}[language=json,firstnumber=1]
   endpointFilters:
     - responseTrimming: [field1, field2, ...]
 \end{lstlisting}
@@ -1057,23 +1032,23 @@ The fields that are included in the array are not going to be forwarded to the e
 %% - Terraform implementation. This part is where it can be explained how we use terraform and how to the problem cloud-agnostic.
 %% - BigQuery setup.
 
-As stated in section \ref{sec:req-analysis}, one of the requirements for this project is to create a format for representing the gateway responsibilities (section \ref{sec:gateway-configuration-file}) and a tool that stores and visualizes those errors to fulfill the stakeholders' expectations. This section covers the development of that tool, centering on the definition of the data that will be stored, the implementation details, and finally, the selected data storage technology.
+As stated in section \ref{sec:req-analysis}, one of the requirements for this project is to create a tool that stores and visualizes the high-level errors that the gateway is generating. This section covers the development of that tool, explaining the definition of the error format, the creation of the events gathering, the data pipeline for storing those events and finally the selection and setup of the data storage technology.
 
 \subsubsection{Error event definition}
 \label{sec:error-event-definition}
 
-This subsection covers the definition of the events that will be collected on the data storage to be visualized in the future. The main objective of this is that it should share many standard fields that can be used to identify the error for all the gateway high-level responsibilities (stated in section \ref{sec:microservices-gateway}).\\
+This subsection covers the definition of the error events that will be collected on the data storage to be visualized in the future. The main objective of this is that it should share many standard fields that can be used to identify the error for all the gateway high-level responsibilities (section \ref{sec:microservices-gateway}).\\
 
 For doing that, the approach consists of having some general fields independent of the error event generated, which will be used to locate the endpoint that was called and that caused the error. Apart from that, some specific fields will be stored depending on the high-level responsibility that caused the error, and the purpose for this is to create meaningful visualizations afterward. It is essential to state that only the rate-limiting responsibility was considered for the initial implementation as it is the most important for the stakeholders. Nevertheless, it can be extended in the future as many fields can be added easily to the events.\\
 
-The procedure for defining which are the meaningful fields had to be stored was by presenting an RFC (Requests for comments) \cite{reynolds1987request} internally on the gateway development team, so all the people involved in it could freely give comments and ideas. As the company is using slack as the communication platform, the RFC was shared in a slack thread. The number of people present on the slack channel was 294 when the RFC was published, and there were 139 replies to it from people from different teams, such as project managers and engineers.\\
+The procedure for defining which are the meaningful fields that had to be stored was by presenting an RFC (Requests for comments) \cite{reynolds1987request} internally on the gateway development team, so all the people involved on it could freely give comments and ideas. As the company is using Slack as the communication platform, the RFC was shared in a Slack thread. The number of people present on the slack channel was 294 when the RFC was published, and there were 139 replies to it from people from different teams, such as project managers and engineers.\\
 
 After that internal discussion, the agreed set of fields that the events should contain are the following ones:
 
 \begin{itemize}
     \item \texttt{source}: It is the type of event that will be stored. They should match the gateway responsibilities (section \ref{sec:microservices-gateway}), but as stated before, as only the rate-limiting responsibility is considered for this implementation, the only possible value is \texttt{RATE\_LIMIT}. Some other values like \texttt{AUTHENTICATION} or \texttt{AUTHORIZATION} can be added in the future.
     \item \texttt{requestId}: This maps the request to a unique id that can be used to trace it back on the microservices calls. The gateway defines this unique id.
-    \item \texttt{path}: The completed path of the resource requested on the query. In the context of the Unity public API an example of it can be: \\ \texttt{/advertise/v1/organizations/:organizationId/apps/:campaignSetId/campaigns}.
+    \item \texttt{path}: The completed path of the resource requested on the query. In the context of the Unity public API an example of it can be: \\ \texttt{/advertise/v1/organizations/:organizationId/apps/:appId}.
     \item \texttt{organizationId}: It is the organization id extracted from the request's path. If that parameter is not present on the path, the value is \texttt{null}.
     \item \texttt{httpMethod}: This value is the HTTP method used in the request. This parameter is essential for distinguishing between different endpoints.
     \item \texttt{apiVersion}: As REST APIs are frequently versioned \cite{varga2016versioning}, this parameter aims to contain the different versions of the API. It is also extracted from the path, so it has a null value if it is not present on it.
@@ -1106,8 +1081,8 @@ The three project stories that configured the project were:
 
 \begin{itemize}
     \item \textbf{Proof of concept of visualizing event data}: As we were unsure how to use the selected technologies for development, first, it was needed to build a proof of concept with dummy data to configure all involved parts. Also, this story included the publishing of the RFC for the event structure described in section \ref{sec:error-event-definition}.
-    \item \textbf{Implement event collection in Unity Services Gateway}: This story includes the implementation of the events collection on Unity Services Gateway, described in section CITE-SECTION.
-    \item \textbf{Gateway metrics dashboard}: This story covers the implementation of the custom plots used on the visualization step; this is explained in more detail in section CITE-SECTION.
+    \item \textbf{Implement event collection in Unity Services Gateway}: This story includes the implementation of the events collection on Unity Services Gateway as well as the setup of the data pipelines, described in section \ref{sec:event-gathering} and \ref{sec:log-sink} respectively.
+    \item \textbf{Gateway metrics dashboard}: This story covers the implementation of the custom plots used on the visualization step; this is explained in more detail in section \ref{sec:visualization-dashboard}.
 \end{itemize}
 
 To fulfill the three stories that composed the project, the total execution time was one month, which was close to the estimated time, only differing on a couple of days.
@@ -1117,15 +1092,15 @@ To fulfill the three stories that composed the project, the total execution time
 This section aims to explain why a particular storage technology is selected for storing the generated gateway errors, thus answering \textbf{Q2}. To define the optimal storage technology, three criteria have been considered.
 
 \begin{itemize}
-    \item[\textbf{C1}] \textbf{price}: The monthly price that the organization have to spend on the selected technology.
-    \item[\textbf{C2}] \textbf{Data access}: This criterion sets how easy it is to consult the data stored using standard language such as SQL.
+    \item[\textbf{C1}] \textbf{price}: The monthly price that the organization has to spend on the selected technology.
+    \item[\textbf{C2}] \textbf{Data access}: This criterion sets how easy it is to consult the data stored using an standard query language such as SQL.
     \item[\textbf{C3}] \textbf{Integration with the current cloud setup}: most modern organizations, especially those that are big enough to deal with a gateway for a microservices architecture, are operating using a cloud provider. In that sense, this criterion sets the easiness for integrating the storage technology with the current cloud provider.
 \end{itemize}
 
 The answers for this questions might differ depending on different organizations, but should be enough for deciding the best choice among the considered technologies. For the scope of this project and considering the events generated on the Unity Services Gateway, there are three storing technologies considered in the comparison:
 
 \begin{itemize}
-    \item \textbf{BigQuery} \cite{BigQuery}: This is a data warehouse designed by Google to store, efficiently access, and analyze enormous amounts of data. One of its most exciting characteristics is that it allows access to that data using standard SQL statements.
+    \item \textbf{BigQuery} \cite{BigQuery}: This is a data warehouse designed by Google to store, efficiently access, and analyze enormous amounts of data. One of its most interesting characteristics is that it allows access to that data using standard SQL statements.
     \item \textbf{Amplitude} \cite{Amplitude}: This is a tool used to store events produced on applications and analyze them. It is more common to use it in front-end applications to analyze user behavior.
     \item \textbf{PostgresSQL} \cite{PostgreSQL}: PostgreSQL is an open-source relational database. It has to be used on an instance in the cloud provider of our choice.
 \end{itemize}
@@ -1200,7 +1175,7 @@ As it can be seen the total monthly cost for this technology is of \$8.4 / month
 
 \subsubsection*{Amplitude}
 
-Amplitude's costs are divided into three categories: starter, growth, and Enterprise. On the starter version, they offer the storage and processing of 10 million monthly events, which is more than enough for covering the expected 50.0000 monthly actions. The price for this version is free, so as it can be seen Amplitude is a really good option cost-wise.
+Amplitude's costs are divided into three categories: starter, growth, and Enterprise. On the starter version, they offer the storage and processing of 10 million monthly events, which is more than enough for covering the expected 50.0000 monthly actions. The price for this version is free, so as it can be seen Amplitude is a good option cost-wise.
 
 \subsubsection*{PostgresSQL}
 
@@ -1239,7 +1214,7 @@ The second criterion considered is the tool's easiness for accessing data, espec
 This third criterion refers to the tool's capacity to be used in integration with the current cloud setup for its purpose. The comparison between them is as follows:
 
 \begin{itemize}
-    \item \textbf{BigQuery}: In the case of using Google Cloud Platform, BigQuery is integrated into the environment out of the box. Nevertheless, if the company already uses another cloud platform, using BigQuery becomes impossible.
+    \item \textbf{BigQuery}: In the case of using Google Cloud Platform, BigQuery is integrated into the environment out of the box. Nevertheless, if the company already uses another cloud platform, BigQuery is not a suitable option.
     \item \textbf{Amplitude}: As it is an external platform, it can be easily used with any cloud provider to store and analyze events. 
     \item \textbf{PostgresSQL}: All modern cloud providers provide access to a database instance, so it should be effortless to integrate with any of them. 
 \end{itemize}
@@ -1265,9 +1240,9 @@ For the particular case of any other company trying to accommodate this solution
 
 \subsubsection{BigQuery setup}
 
-Once it is decided that BigQuery is the technology to go with this project, the next step will be to create the table containing the data and configuration. This can be easily done using the Google Cloud Console on the BigQuery section.\\
+Once it was decided that BigQuery was the technology to go with this project, the next step was to create the table containing the data and configuration. This can be easily done using the Google Cloud Console on the BigQuery section.\\
 
-First of all, the database has to be created under the target project on Google cloud. In our case, it is the \texttt{unity-services-foundation-stg} project for staging deployment and \texttt{unity-services-foundation-prd} for production deployment (figure \ref{fig:bigquery-creation}). In this case, two databases will be created with the exact schema both for staging and production to have separated the development environment with production, where the clients' errors will be stored.
+First of all, the database has to be created under the target project on Google cloud. In our case, it is the \texttt{unity-services-foundation-stg} project for staging deployment and \texttt{unity-services-foundation-prd} for production deployment (figure \ref{fig:bigquery-creation}). In this case, two databases will be created with the exact schema both for staging and production to have a separated development environment from production.
 
 \begin{figure}[h!]
     \centering
@@ -1285,61 +1260,21 @@ The schema of those databases will follow the events structure already explained
     \label{fig:bigquery-schema}
 \end{figure}
 
-The next steps will be to implement the data gathering on the gateway microservice and create a log sink (CITE-SECTION) for starting storing data on the warehouse.
+The next steps will be to implement the data gathering on the gateway microservice and create a log sink (section \ref{sec:log-sink}) for starting storing data on the warehouse.
 
 \subsubsection{Event gathering implementation on Unity Services gateway}
 \label{sec:event-gathering}
 
-This section explains which concrete changes had been introduced on the Unity Services Gateway codebase to support the new events gathering.\\
+This section explains which concrete changes had been introduced on the Unity Services Gateway codebase to support the new events gathering. A diagram for this process can be observed on figure \ref{fig:event-gathering}.\\
 
-The first change introduced on the gateway consists of adding a wrapper JavaScript function to the Google Cloud Logger that will construct the event structure that BigQuery expects (explained in section \ref{sec:error-event-definition}). That function will be used instead of the current logger in the codebase where the events are triggered. The structure of the code is as follows:\\
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.4]{src/thesis/img/technical-solution/events-gathering.png}
+    \caption{Diagram that shows how the events gathering work on the Unity Services Gateway and how the log sink works}
+    \label{fig:event-gathering}
+\end{figure}
 
-\begin{lstlisting}[language=JavaScript,firstnumber=1]
-const { logger } = require('@unity/node-monitoring');
-
-function log(
-  req,
-  {
-    quota,
-    source,
-    type,
-    apiVersion,
-    apiNamespace,
-    rateLimitReason,
-    group,
-    resourceId,
-  },
-) {
-  const organizationId = req.params?.organizationId ?? null;
-  const requestId = req?.context?.id ?? '';
-  const apiType = process.env.API_MODE ?? '';
-
-  const event = {
-    key: 'METRICS',
-    path: req.route.path,
-    url: req.url,
-    httpMethod: req.method,
-    customPath: `${req.method}_${req.route.path}`,
-    source,
-    type,
-    apiVersion,
-    apiNamespace,
-    rateLimitReason,
-    group,
-    resourceId,
-    apiType,
-    requestId,
-    organizationId,
-    quota,
-  };
-
-  logger.log(event);
-}
-
-module.exports = { log };
-\end{lstlisting}
-
-The logger function is straightforward, it mainly matches the object that is given as a parameter, and then it enriches some fields from the request that it is receiving. Those parameters are the Organization ID obtained from the path parameter and the Request ID, injected by the gateway in an intermediate middleware.\\
+The first change introduced on the gateway consists of adding a wrapper JavaScript function to the Google Cloud Logger that will construct the event structure that BigQuery expects (explained in section \ref{sec:error-event-definition}). That function will be used instead of the current logger in the codebase where the events are triggered.The logger function is straightforward, it mainly matches the object that is given as a parameter, and then it enriches some fields from the request that it is receiving. Those parameters are the Organization ID obtained from the path parameter and the Request ID, injected by the gateway in an intermediate middleware. The code for the function can be seen at appendix \ref{apx:gateway-gathering}.\\
 
 As stated before, only the rate-limiting events are considered; thus, only those events have to be logged for this iteration. This means the function that performs the rate limiter has to be modified to include the logging using the previous utility. It is first essential to explain how the rate limit quota is calculated, for doing that, a Redis database is set up with the Organization ID and a numeric value that increments when a new request is resolved. When the quota is exceeded, a new event is triggered containing the information if there were too many requests per 30 minutes or second.\\
 
@@ -1394,9 +1329,16 @@ This section covers the creation of a visualization tool for the high-level erro
 
 One of the main characteristics of Grafana is that it is agnostic to the storage technology that is being used for the time series data that is going to be shown on the generated plots. This means that for adding different data sources, a connection has to be established between Grafana and the selected data storage technology, which in the case of this project is BigQuery. In that regard, two steps had to be followed for establishing that connection; the first one consists of installing the official Grafana plugin (\texttt{bigquery-grafana} \cite{GrafanaPlugin}) on the current instance of the company, and the second step is to add BigQuery as a data source so Grafana can access its data by using SQL statements.\\
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.5]{src/thesis/img/technical-solution/grafana-connection.png}
+    \caption{Diagram showing the connection between Grafana and Big Query}
+    \label{fig:grafana-connection}
+\end{figure}
+
 In order to fulfill the first step, thus installing the plugin on the Grafana instance, the procedure consists of adding the URL and the variable that sets how the plugin should be loaded on the Helm chart of the Grafana instance. For doing that, the file \texttt{values.yaml} has to be modified in two sections, \texttt{plugins} and \texttt{grafana.ini}, adding the following values:\\
 
-\begin{lstlisting}[language=json,firstnumber=1]e
+\begin{lstlisting}[language=json,firstnumber=1]
   plugins:
      - https://github.com/doitintl/bigquery-grafana/releases/download/2.0.3/doitintl-bigquery-datasource-2.0.3.zip;doit-bigquery-datasource
 
@@ -1407,12 +1349,12 @@ In order to fulfill the first step, thus installing the plugin on the Grafana in
 
 On the \texttt{plugins} section, the URL of the official repository is specified alongside the desired version, so when loaded, the Grafana application will know where to download the plugin from. Additionally, the \texttt{grafana.ini} section specifies the name of the plugin to be loaded, in this case, \texttt{doitintl-bigquery-datasource}. After this configuration is applied and the Helm application is deployed, the plugin should be accessible from the Grafana instance. \\
 
-The second step for establishing a connection between Grafana and BigQuery is adding it as a data source. As all the infrastructure management on Unity uses Terraform, adding a new data source for Grafana consists of adding the already existent BigQuery table as a Terraform resource \cite{TerraformResource}.\\
+The second step for establishing a connection between Grafana and BigQuery is adding it as a data source. As the infrastructure management of these project is using Terraform, adding a new data source for Grafana consists of adding the already existent BigQuery table as a Terraform resource \cite{TerraformResource}.\\
 
 There are two steps for adding this resource on Terraform; first, the different configurations for BigQuery, are defined as Terraform locals on the terraform data sources configuration file. The objective is to avoid repetition on the creation of new resources while simplifying the addition of a new BigQuery data source (or even other types of data sources, such as Prometheus) to the infrastructure. The definition of the locals is as follows:\\
 
 %% The real name of the project and the service account had been hidden for privacy reasons
-\begin{lstlisting}[language=json,firstnumber=1]e
+\begin{lstlisting}[language=json,firstnumber=1]
 locals {
   // some other datasources ...
   bigquery = {
@@ -1427,7 +1369,7 @@ locals {
 
 After the local variables are added is time to create the BigQuery data source resource, which is specified as follows:\\
 
-\begin{lstlisting}[language=json,firstnumber=1]e
+\begin{lstlisting}[language=json,firstnumber=1]
 resource "grafana_data_source" "bigquery" {
  for_each = local.bigquery
  
@@ -1602,7 +1544,7 @@ Finally, it is essential to notice that the extensibility of these panels is str
 
 In this last section, it is going to be explained how the Grafana dashboard is persisted and correctly versioned. The objective is to have a way to recover the dashboard if something happens and not only rely on click-opts to create and save it. Additionally, the dashboard will be stored on a VSC so it can be versioned; thus, team members can review its new changes before deploying it.\\
 
-Once the dashboard is created, the next step is to generate a JSON file in the Grafana format \cite{GrafanaJson} through the UI. That JSON Document will be persisted in the private repository of the project. For doing that, a PR has to be created containing the copied file under the \texttt{monitoring/dashboard} directory. That particular file location is used because some company-wide automation deploys the dashboards located under that folder.\\
+Once the dashboard is created, the next step is to generate a JSON file in the Grafana format \cite{GrafanaJson} through the UI. That JSON Document will be persisted in the private repository of the project. For doing that, a PR has to be created containing the copied file under the \texttt{monitoring/dashboard} directory. That particular file location is chosen because a company-wide automation deploys the dashboards located under that folder for each repository.\\
 
 After this first version is created, future changes or maintenance will follow this procedure: import the JSON file into Grafana, make the changes that are required, export the new JSON file replacing the old one in the repository, and finally create a new PR that explains the differences and that the team that owns the service has to review before being merged and deployed.
 
@@ -1728,6 +1670,53 @@ Table \ref{tab:frameworks} summarizes the comparison between the different frame
 \thesisappendix
 
 \section{Appendix 1}
+\label{apx:gateway-gathering}
+
+This appendix contains the code for the event gathering on the Unity Services Gateway:
+
+\begin{lstlisting}[language=JavaScript,firstnumber=1]
+const { logger } = require('@unity/node-monitoring');
+function log(req,
+  {
+    quota,
+    source,
+    type,
+    apiVersion,
+    apiNamespace,
+    rateLimitReason,
+    group,
+    resourceId,
+  },
+) {
+  const organizationId = req.params?.organizationId ?? null;
+  const requestId = req?.context?.id ?? '';
+  const apiType = process.env.API_MODE ?? '';
+  const event = {
+    key: 'METRICS',
+    path: req.route.path,
+    url: req.url,
+    httpMethod: req.method,
+    customPath: `${req.method}_${req.route.path}`,
+    source,
+    type,
+    apiVersion,
+    apiNamespace,
+    rateLimitReason,
+    group,
+    resourceId,
+    apiType,
+    requestId,
+    organizationId,
+    quota,
+  };
+
+  logger.log(event);
+}
+module.exports = { log };
+\end{lstlisting}
+
+\clearpage
+\section{Appendix 2}
 \label{apx:jest-eval}
 
 This appendix contains the code for the test case written in JavaScript using the framework Jest for evaluating the event gathering function on the Unity Services Gateway (section \ref{sec:event-gathering-eval}).
@@ -1802,7 +1791,7 @@ describe('metrics', () => {
 Two test cases had been included, the first one tests if the Google Logger function had been called only once and the second one tests if the mapped event matches the expected structure.
 
 \clearpage
-\section{Appendix 2}
+\section{Appendix 3}
 \label{apx:bash-script}
 
 This appendix contains the script used for triggering the rate limiting events on several endpoints, introduced on section \ref{sec:e2e-eval}.
