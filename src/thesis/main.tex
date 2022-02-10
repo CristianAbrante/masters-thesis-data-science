@@ -866,6 +866,18 @@ As this thesis aims to monitor the high-level errors of a microservices architec
 
 Considering those high-level responsibilities, in section \ref{sec:gateway-configuration-file} the errors related to each of them will be defined.
 
+\subsection{Open-source microservices gateways}
+\label{sec:industry-gateways}
+
+This section will explain two of the main industry-relevant microservices architectures gateways that are open-sourced and can be incorporated into any company's current architecture. The main idea is to simplify the development of a gateway, having all the benefits already explained in section \ref{sec:microservices-gateway}, while also reducing time-to-market as the primary development effort can be centered on creating the end-product. The two gateways that will be relevant for this analysis are Kong and Zuul, both open-source solutions.
+
+\begin{itemize}
+    \item \textbf{Kong Gateway}: Kong is the most popular open-source microservices gateway nowadays \cite{KongGateway}. It is a containerized Lua application that can be extensible by custom plugins and executed within a Kubernetes deployment. Its main advantage is that it is fully configurable, so the different high-level responsibilities can be configured depending on the protocol or technology that is preferable to use.
+    \item \textbf{Zuul Gateway}: The Netflix engineering team created Zuul gateway as part of their internal stack and then released it as open-source in 2018 \cite{ZuulGateway}. Its main characteristic is that it is built for resisting a high volume of queries. It is the central entry point for all the cloud infrastructure at Netflix, having more than a million requests per second. The architecture of it works in layers. First of all, there is a module that sets all the correspondent network settings and connection protocols, and then there are different filters that are used for decorating the requests before being forwarded to the backends.
+\end{itemize}
+
+As it can be seen, both options offer a solution for companies that operate on a big scale and that have a considerable volume of traffic. In section \ref{sec:gateways-comparison}, those solutions will be examined in depth to be compared with the proposed solution in this project's scope.
+
 \subsection{Observability and Monitoring}
 \label{sec:observability-monitoring}
 
@@ -887,9 +899,7 @@ On the other hand, observability is similar on purpose but different on methodol
 
 In that regard, to investigate \textbf{Q1} and generate a valuable solution, it is needed to create an observability + monitoring tool. The observability side of the project will be responsible for the generation of logs that will contain enough information about the internal state and the high-level errors that the gateway handled. On top of it, a monitoring platform had to be created to visualize those responsibilities graphically, hence addressing \textbf{Q3}.\\
 
-\subsection{Previous work}
-
-This section reviews the previous studies in the field of services monitoring. To narrow the scope of the research, only previous studies centered on microservices are considered. Furthermore, only the ones provide a novel approach to bridge the gap between the complexity of distributed microservices architecture and its monitoring \cite{niedermaier2019observability}.\\
+It is also relevant to review the previous studies in the field of services monitoring. To narrow the scope of the research, only previous studies centered on microservices are considered. Furthermore, only the ones provide a novel approach to bridge the gap between the complexity of distributed microservices architecture and its monitoring \cite{niedermaier2019observability}.\\
 
 First of all, Yang et al. \cite{yang2018transparently} propose a new approach for capturing the request execution path (REP) transparently. This novel method categorizes the events generated at a microservice level, and the relationships between those events are identified to construct a monitoring tool that could effectively trace the REP. The way this study categorizes the events is similar to the work done for the categorization of the DOMA Gateway events done for this thesis (Section \ref{sec:gateway-configuration-file}).\\
 
@@ -900,14 +910,6 @@ Jongh et al.\cite{johng2018estimating} formulate a different study where benchma
 In that regard, Lin et al. \cite{lin2018microscope} present a study whose aim is to propose a new method for root cause detection, where the errors are identified using causal graphs. This work focuses on identifying and monitoring the errors caused in distributed systems and how they are propagated across the architecture.\\
 
 Finally, Gupta et al. \cite{gupta2018runtime} proposed a new way for monitoring continuous deployment on rapidly changing companies (with the independence of the size of the product). On that approach, data mining techniques are applied to the logs of highly-observable microservices to discover the differences between deployed versions on microservices.\\
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[scale=0.4]{src/thesis/img/literature-review/literature-review.png}
-    \label{fig:literature-review-comparison}
-\end{figure}
-
-As shown in figure \ref{fig:literature-review-comparison}, the work presented in this thesis is situated on a middle point on the axes of distributed system complexity and monitoring capabilities. This is because it proposes a schema definition for the errors presented on the DOMA Gateway and offers an accurate tool tested in an extensive environment.\\
 
 \clearpage
 \section{Technical solution}
@@ -1589,8 +1591,9 @@ As it was stated in section \ref{sec:error-event-definition}, the high-level eve
 After creating and calling that script, the resulting events were observed on BigQuery and correctly visualized in the dashboard; thus, the framework could be safely deployed in the production environment.
 
 \subsection{Comparison with state-of-the-art gateway frameworks}
+\label{sec:gateways-comparison}
 
-In this section, the proposed framework will be compared to the two integral gateway solutions that are standards in the industry: The Gateway by Kong technologies and the Zuul gateway by Netflix, already introduced in section CITE-SECTION. Those two examples are out-of-the-box integral gateway solutions, so they present more functionalities than the proposed framework; therefore, they will be compared by the expected criteria exposed in section \ref{sec:req-analysis}. The primary purpose of this comparison is to evaluate if the industry solutions already fulfill these criteria and to assess this proposed framework in conjunction with the Unity Services Gateway.
+In this section, the proposed framework will be compared to the two integral gateway solutions that are standards in the industry: The Gateway by Kong technologies and the Zuul gateway by Netflix, already introduced in section \ref{sec:industry-gateways}. Those two examples are out-of-the-box integral gateway solutions, so they present more functionalities than the proposed framework; therefore, they will be compared by the expected criteria exposed in section \ref{sec:req-analysis}. The primary purpose of this comparison is to evaluate if the industry solutions already fulfill these criteria and to assess this proposed framework in conjunction with the Unity Services Gateway.
 
 \subsubsection{Frameworks comparison}
 
