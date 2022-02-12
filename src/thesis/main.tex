@@ -1643,6 +1643,34 @@ Table \ref{tab:frameworks} summarizes the comparison between the different frame
 
 %% Focus conclussion on an adoption analysis for the three types of organizations: startups, midsize organizations and large organizations.
 
+In recent years, there has been an increase in the adoption of microservices architectures by extensive and well-established companies and small startups. On many of them, the amount and complexity of their architecture are so significant that they had to adopt patterns like DOMA, creating a gateway that allows them to simplify the operations that they had spread across many microservices. This thesis aims to offer a framework for developing and monitoring the high-level errors that those gateways are producing and giving procedures on how to increase their visibility of them across different teams.\\
+
+The work developed during this thesis gave valuable insights that can be applied to any organization facing the same challenges that Unity Technologies. But it is remarkable to mention that this project is done within a multinational organization. Thus, the knowledge might not be applied in the same way for organizations of different sizes. This is why these conclusions might be divided to give insights depending on the organization's scale.
+
+\subsubsection*{Startups}
+On startups, the main goal is to develop the business's value proposition and give worth to the final customers. In those organizations, the number of employees is usually small, so there are not enough resources for implementing internal tools like the one proposed in this project.\\
+
+The software architecture is usually monolithic or just a few microservices on these businesses. Therefore, as they are not running a DOMA, they are not the target of this project. Nevertheless, in the initial stages of software design is always beneficial to take into consideration that the architecture might change and scale in the future, and they might find the necessity of adopting a gateway after that initial stage.
+
+\subsubsection*{Medium-sized enterprises}
+Medium-sized enterprises have between 50 and 250 employees. If they are software-based, usually that means that they are running more than 50 microservices. In that case, probably the need for a standard gateway for the microservices has already arisen.\\
+
+In that case, the most crucial step is defining how the format will be for determining the routes that the gateway will expose to the public and how to implement the high-level responsibilities. Considering this, one sensible approach will be to select one of the existing industry-standard solutions for the gateway (section CITE-SECTION), as it will dramatically reduce the implementation and maintenance time. One possible solution about the monitoring of it will be to adapt the knowledge exposed in the technical solution of this thesis (section CITE-SECTION) to the particular case of the gateway technology that they are running.
+
+\subsubsection*{International enterprises}
+On international enterprises with hundreds or thousands of employees and possibly microservices running, the most sensible approach will be to adopt a DOMA architecture while maintaining a gateway that will be the starting point of one or several domains. This is the case with Unity technologies or Uber.\\
+
+This project makes most of the sense on those types of organizations, as different teams probably depend on others, working in various locations and times zones. In that case, visibility of the business logic is crucial, and monitoring the high-level gateway errors becomes very significant.
+
+\subsection{Future work}
+Different improvement ideas or future work that can be done on this topic are introduced in this section.\\
+
+The first one is about the different types of errors that were mapped. As it was stated in section CITE-SECTION, for this project, only rate-limiting responsibility is considered for the monitoring; this is because it was the error that project managers and teams were more worried about. Nevertheless, other types of errors can be handled, and that can be done by extending the error type and using the custom function introduced in section CITE-SECTION.\\
+
+The second improvement idea will be to create a gateway composable logic tool. Having the standard defined in section CITE-SECTION, the next step can be to create a solution that injects the handling of those high-level responsibilities on the gateway at execution time to minimize the effort for defining new routes and resources.\\
+
+Finally, the last improvement idea will be to pack this knowledge into a fully-extendable tool that can be used in standard gateway solutions like Kong. For doing that, some pieces of this software should be re-written to ensure compatibility with the gateway solution that it is intended to be extended.
+
 \clearpage
 \thesisbibliography
 
