@@ -178,7 +178,7 @@
 %% argument in box brackets. This is done because the title is part of the 
 %% metadata in the pdf/a file, and the metadata cannot contain linebreaks.
 %%
-\thesistitle{Domain-Oriented Microservices Gateway monitoring using big data techniques}
+\thesistitle{Domain-Oriented Microservices Gateway Monitoring Using Big Data Techniques}
 %\thesistitle[Title of the thesis]{Title of\\ the thesis}
 %%
 
@@ -227,7 +227,7 @@
 %% as the abstract page.
 %%
 \thesisabstract{
-Over the last decade, many companies and organizations have adopted microservices as the software architecture pattern to organize their software system. When the number of those microservices increases dramatically, there are some problems associated with tracing errors and managing common responsibilities. In that sense, many companies adopted a Domain-Oriented Microservices architecture pattern, where the microservices of a different business domain are separated and can be accessed only through a single gateway.The errors that are handled at the gateway level are interesting for other teams depending on it, but maybe they do not have direct visibility on them. This thesis has two outcomes; on the one hand, it introduces a standard format for defining the high-level responsibilities that the gateway has to handle and the associated errors with those. On the other hand, it also describes the data pipeline introduced for gathering those errors at the gateway level and storing them efficiently to be visualized conveniently afterward.This tool is tested in the context of a multinational company on a gateway that handles thousands of requests per second. Apart from that, a comparison has been established with the most common open-source gateway technologies, showing that they do not provide by default enough cross-team visibility on the events that we are trying to gather.
+Over the last decade, many companies and organizations have adopted microservices as the software architecture pattern to organize their software system. When the number of those microservices increases dramatically, there are some problems associated with tracing errors and managing common responsibilities. In that sense, many companies adopted a Domain-Oriented Microservices architecture pattern, where the microservices of a different business domain are separated and can be accessed only through a single gateway.The errors that are handled at the gateway level are interesting for other teams depending on it, but maybe they do not have direct visibility on them. This thesis has two outcomes; on the one hand, it introduces an extensible format for defining the high-level responsibilities that the gateway has to handle and the associated errors with those. On the other hand, it also describes the data pipeline introduced for gathering those errors at the gateway level and storing them efficiently to be visualized conveniently afterward.This tool is tested in the context of a multinational company on a gateway that handles thousands of requests per second. Apart from that, a comparison has been established with the most common open-source gateway technologies, showing that they do not provide by default enough cross-team visibility on the events that we are trying to gather.
 }
 
 %% Copyright text. Copyright of a work is with the creator/author of the work
@@ -415,7 +415,7 @@ Otaniemi, \today
 \mysection{Abbreviations}
 
 \begin{tabular}{ll}
-SOA          & Service oriented architecture \\
+SOA          & Service-oriented architecture \\
 DOMA         & Domain-oriented microservices architecture \\
 WSDL         & Web Service Deskcription Language \\
 SOAP         & Simple Object Acess Protocol \\
@@ -458,7 +458,7 @@ gRPC         & Google Remote Procedure Call\\
 
 Over the past few years, there has been debate on how to properly organize and deploy service-oriented architectures. One of the software architecture patterns that has gained the most popularity today is microservices \cite{MicroservicesAdoption}. Many large, medium and even small software companies have adopted this architecture because of its enormous benefits compared to traditional, monolithic software applications.\\
 
-Microservices are an extension of service-oriented architecture. The main objective is that each of these microservices provides a well-defined and clear scope of functionalities, which can be accessed by another microservice using \textit{remote procedure calls} \cite{nelson1981remote}. The main advantage of this pattern is that it can be established clear ownership of each microservice by different teams where they are responsible for the development, maintenance, and deployment. This is a clear advantage over the classic monolithic architecture, since in these, although the development tasks may be divided among different teams, the deployment of a single functionality involves the deployment of the entire system, which is then prone to cause major problems that can lead to the complete shutdown of the application.\\
+Microservices are an extension of service-oriented architecture. The main objective is that each of these microservices provides a well-defined and clear scope of functionalities, which can be accessed by another microservice using \textit{remote procedure calls} \cite{nelson1981remote}. Considering the definition of Lewis et al. \cite{MicroservicesCharacteristics} is that it can be established clear ownership of each microservice by different teams where they are responsible for the development, maintenance, and deployment. This is a clear advantage over the classic monolithic architecture, since in these, although the development tasks may be divided among different teams, the deployment of a single functionality involves the deployment of the entire system, which is then prone to cause major problems that can lead to the complete shutdown of the application.\\
 
 Although the microservices architecture represents a step forward in the design of software systems, it also has some drawbacks compared to monolithic architectures, such as performance. In a traditional monolithic application subroutine calls are something that can be solved within the same process and machine, however, in microservices, the call has to be made over the network, which is something that may eventually introduce some execution delays. Apart from this, there is another problem faced by microservices architectures, which is the orchestration of thousands of different microservices, when dealing with enterprises operating on a large scale. In this case, any problem caused by one microservice can spread across many of them, and engineers have to debug calls coming from a huge stack of different services, which is something that can be challenging and time-consuming.\\
 
@@ -638,70 +638,6 @@ In that sense, this team is interested in having some visual tool to access that
 \subsubsection*{Security team}
 
 The security team wants to know more when specific clients or users make several requests to the services. In case those calls are coming from a malicious user or a not-identified client, it could be banned for preventing any further attack \cite{jhaveri2012attacks}.
-
-\clearpage
-\section{Requirements engineering}
-\label{sec:requirements-eng}
-
-%% Taking into consideration that everyone has clear who are the stakeholders and what is the structure of the
-%% company and the microservices involved, now we have to do the requirement analysis.
-
-%% First of all, it is important to state why it is not possible to store things on Prometheus.
-
-%% We can list the project requirements like:
-
-%% - We need to do a clear definition of the errors that we want to log.
-%% - The logging technology has to support a lot of stress as we are having x (collect the number of average requests).
-%% - The provided solution has to be cloud agnostic (this is why some part has to be implemented in Terraform or using an external service).
-%% - We need a visual tool in order to communicate effectively with the stakeholders.
-
-Having presented the background necessary to understand the thesis project in Section \ref{sec:background}, this section will cover requirements engineering.\\
-
-Requirements engineering is the process of establishing the desired requirements to be met by the project \cite{hay2003requirements}. Section \ref{sec:req-methodology} will define the methodology to be followed to gather the requirements, and Section \ref{sec:req-analysis} will analyze these requirements. Finally, Section \ref{sec:research-questions} will present the research questions that will serve as the guiding thread of this thesis.
-
-\subsection{Requirements engineering methodology}
-\label{sec:req-methodology}
-
-Before performing the requirements analysis, it is essential to clarify which methodology will be followed to identify the project requirements. In this case, the framework proposed by David C. Hay \cite{hay2003requirements} for requirements engineering, which consists of three steps, is selected:
-
-\begin{itemize}
-    \item \textbf{Eliciting requirements}: this phase is where all the requirements will be discovered following the selected gathering methodology.
-    \item \textbf{Recording requirements}: The second phase consists of the documentation of the requirements previously collected.
-    \item \textbf{Analyzing requirements}: Finally, those requirements have to be analyzed in order to see if they are clear, complete, concise, and unambiguous.
-\end{itemize}
-
-For the elicitation of requirements, the selected method is stakeholders identification \cite{mitchell1997toward}, which consists of selecting individuals or groups interested in the product or function to be developed and asking them what the desired characteristics they expect from the product are. This method is the most appropriate for our project since it will only have an internal impact as external customers will not use it. The list of stakeholders for this project is given in section \ref{sec:problem-definition}.\\
-
-To record and document the requirements expressed by the stakeholders, there were two methods: the first was to use message threads in Slack, which is the internal communication platform, where relevant stakeholders could set their expectations, and the second method was to organize some meetings, based on the framework of the Joint Requirements Development (JRD) Sessions \cite{hay2003requirements}, to discuss the project and the expected results. At these meetings, a log was drafted to keep track of the issues discussed.
-
-\subsection{Requirements analysis}
-\label{sec:req-analysis}
-
-The last step of the chosen requirements engineering framework consists of performing an analysis of the requirements gathered from stakeholders. In that sense, the solution that is going to be presented for solving the problem stated in section \ref{sec:problem-definition} needs to meet the following requirements:
-
-\begin{itemize}
-    \item Clear definition on which are going to be the high-level responsibilities that the gateway will handle and which errors the gateway can generate associated with those.
-    \item Establish a format for the generated errors. They need to store all necessary fields in order to be traced back and visualized afterward.
-    \item Map possible errors and gateway responsibilities to the different endpoints that clients can consume.
-    \item Select a suitable data store for the errors. Data storage needs to be easily integrated with the current cloud setup and must ensure the acceptance of a standard query language that allows the integration with third-party tools.
-    \item Data ingestion has to be cloud-agnostic. This means that the error logging pipeline, from the event emission to the storage, has to be done with a technology that ensures compatibility with multiple cloud providers.
-    \item Develop a visualization tool that allows stakeholders to access the errors generated at the gateway level easily.
-\end{itemize}
-
-\subsection{Research questions}
-\label{sec:research-questions}
-
-%% Taking into consideration the previous requirement analysis we can state down the research questions.
-
-This project aims not only to satisfy the specific need for a technical feature but also to generate a set of tools and practices that can be used in the future by any other organization operating a DOMA. Therefore, this project needs an extensive investigation and planning phase, which these three research questions will guide:
-
-\begin{itemize}
-    \item[\textbf{Q1}] \textit{What is the best way to represent the possible high-level errors that a DOMA gateway can produce?}
-    \item[\textbf{Q2}] \textit{What is the optimal technology for storing the errors that a DOMA gateway can produce?}
-    \item[\textbf{Q3}] \textit{How to correctly visualize and communicate with the stakeholders the errors a DOMA gateway can produce?}
-\end{itemize}
-
-The objective of the thesis is to produce a series of software artifacts and standards that will satisfy the research questions and, therefore, the technical requirements of the stakeholders.
 
 \clearpage
 \section{Literature review}
@@ -903,6 +839,70 @@ Jongh et al.\cite{johng2018estimating} formulate a different study where benchma
 In that regard, Lin et al. \cite{lin2018microscope} present a study whose aim is to propose a new method for root cause detection, where the errors are identified using causal graphs. This work focuses on identifying and monitoring the errors caused in distributed systems and how they are propagated across the architecture.\\
 
 Finally, Gupta et al. \cite{gupta2018runtime} proposed a new way for monitoring continuous deployment on rapidly changing companies (with the independence of the size of the product). On that approach, data mining techniques are applied to the logs of highly-observable microservices to discover the differences between deployed versions on microservices.\\
+
+\clearpage
+\section{Requirements engineering}
+\label{sec:requirements-eng}
+
+%% Taking into consideration that everyone has clear who are the stakeholders and what is the structure of the
+%% company and the microservices involved, now we have to do the requirement analysis.
+
+%% First of all, it is important to state why it is not possible to store things on Prometheus.
+
+%% We can list the project requirements like:
+
+%% - We need to do a clear definition of the errors that we want to log.
+%% - The logging technology has to support a lot of stress as we are having x (collect the number of average requests).
+%% - The provided solution has to be cloud agnostic (this is why some part has to be implemented in Terraform or using an external service).
+%% - We need a visual tool in order to communicate effectively with the stakeholders.
+
+Having presented the background necessary to understand the thesis project in Section \ref{sec:background}, this section will cover requirements engineering.\\
+
+Requirements engineering is the process of establishing the desired requirements to be met by the project \cite{hay2003requirements}. Section \ref{sec:req-methodology} will define the methodology to be followed to gather the requirements, and Section \ref{sec:req-analysis} will analyze these requirements. Finally, Section \ref{sec:research-questions} will present the research questions that will serve as the guiding thread of this thesis.
+
+\subsection{Requirements engineering methodology}
+\label{sec:req-methodology}
+
+Before performing the requirements analysis, it is essential to clarify which methodology will be followed to identify the project requirements. In this case, the framework proposed by David C. Hay \cite{hay2003requirements} for requirements engineering, which consists of three steps, is selected:
+
+\begin{itemize}
+    \item \textbf{Eliciting requirements}: this phase is where all the requirements will be discovered following the selected gathering methodology.
+    \item \textbf{Recording requirements}: The second phase consists of the documentation of the requirements previously collected.
+    \item \textbf{Analyzing requirements}: Finally, those requirements have to be analyzed in order to see if they are clear, complete, concise, and unambiguous.
+\end{itemize}
+
+For the elicitation of requirements, the selected method is stakeholders identification \cite{mitchell1997toward}, which consists of selecting individuals or groups interested in the product or function to be developed and asking them what the desired characteristics they expect from the product are. This method is the most appropriate for our project since it will only have an internal impact as external customers will not use it. The list of stakeholders for this project is given in section \ref{sec:problem-definition}.\\
+
+To record and document the requirements expressed by the stakeholders, there were two methods: the first was to use message threads in Slack, which is the internal communication platform, where relevant stakeholders could set their expectations, and the second method was to organize some meetings, based on the framework of the Joint Requirements Development (JRD) Sessions \cite{hay2003requirements}, to discuss the project and the expected results. At these meetings, a log was drafted to keep track of the issues discussed.
+
+\subsection{Requirements analysis}
+\label{sec:req-analysis}
+
+The last step of the chosen requirements engineering framework consists of performing an analysis of the requirements gathered from stakeholders. In that sense, the solution that is going to be presented for solving the problem stated in section \ref{sec:problem-definition} needs to meet the following requirements:
+
+\begin{itemize}
+    \item Clear definition on which are going to be the high-level responsibilities that the gateway will handle and which errors the gateway can generate associated with those.
+    \item Establish a format for the generated errors. They need to store all necessary fields in order to be traced back and visualized afterward.
+    \item Map possible errors and gateway responsibilities to the different endpoints that clients can consume.
+    \item Select a suitable data store for the errors. Data storage needs to be easily integrated with the current cloud setup and must ensure the acceptance of a standard query language that allows the integration with third-party tools.
+    \item Data ingestion has to be cloud-agnostic. This means that the error logging pipeline, from the event emission to the storage, has to be done with a technology that ensures compatibility with multiple cloud providers.
+    \item Develop a visualization tool that allows stakeholders to access the errors generated at the gateway level easily.
+\end{itemize}
+
+\subsection{Research questions}
+\label{sec:research-questions}
+
+%% Taking into consideration the previous requirement analysis we can state down the research questions.
+
+This project aims not only to satisfy the specific need for a technical feature but also to generate a set of tools and practices that can be used in the future by any other organization operating a DOMA. Therefore, this project needs an extensive investigation and planning phase, which these three research questions will guide:
+
+\begin{itemize}
+    \item[\textbf{Q1}] \textit{What is the best way to represent the possible high-level errors that a DOMA gateway can produce?}
+    \item[\textbf{Q2}] \textit{What is the optimal technology for storing the errors that a DOMA gateway can produce?}
+    \item[\textbf{Q3}] \textit{How to correctly visualize and communicate with the stakeholders the errors a DOMA gateway can produce?}
+\end{itemize}
+
+The objective of the thesis is to produce a series of software artifacts and standards that will satisfy the research questions and, therefore, the technical requirements of the stakeholders.
 
 \clearpage
 \section{Technical solution}
