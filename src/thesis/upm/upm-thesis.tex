@@ -1,0 +1,262 @@
+% Create a one-sided article document type
+\documentclass[a4paper, twoside, 12pt]{article}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{txfonts}
+
+%% Math fonts, symbols, and formatting; these are usually needed
+\usepackage{amsfonts,amssymb,amsbsy,amsmath}
+% Define the course variables that are gonna be used several times
+\newcommand{\university}{Universidad\ Politécnica\ de\ Madrid}
+\newcommand{\school}{Escuela\ Técnica\ Superior\ de\ ingenieros informáticos}
+\newcommand{\degree}{Máster\ Universitario\ en\ Innovación digital: Ciencia de Datos}
+\newcommand{\tfm}{Master's Thesis}
+\newcommand{\name}{Domain-Oriented Microservices Gateway Monitoring Using Big Data Techniques}
+\newcommand{\me}{Cristian M. Abrante Dorta}
+\newcommand{\supervisor}{Marta Patiño}
+
+% Configure the metadata of the PDF document
+\usepackage[
+	bookmarks       = true,             % Show the bookmarks
+	unicode         = true,             % Use Unicode                 
+	pdftoolbar      = true,             % Show Acrobat’s toolbar
+	pdfmenubar      = true,             % Show Acrobat’s menu
+	pdffitwindow    = false,            % Window fit to page when opened
+	pdfstartview    = {FitH},           % Fit the page width to the window
+	pdfauthor       = {\me},            % The author of this document
+	pdftitle        = {\name\ --\ \me}, % The title of this document
+	pdfsubject      = {\name},          % The subject of this document
+	pdfkeywords     = {\name},          % The keywords of this document
+	pdfnewwindow    = true,             % Open the links in a new PDF window
+	colorlinks      = true,             % Use colored links
+	linkcolor       = blue,             % Internal links color
+	citecolor       = green,            % Bibliographic links color
+	filecolor       = cyan,             % File links color
+	urlcolor        = magenta           % External links color
+]{hyperref}
+
+% Redefine the size and margins (delete the 'twoside' indentation)
+\usepackage[a4paper]{geometry}
+% Define the geometry of the document
+\newgeometry {
+    top = 2.2cm, 
+    bottom = 2.2cm, 
+    right = 2cm, 
+    left = 2cm
+}
+% Use UTF-8 as input encoding
+\usepackage[utf8]{inputenc}
+% Use a modern font (that is not pixelated)
+\usepackage{lmodern}
+% Use microtype to improve readability
+\usepackage[protrusion = true, expansion = true]{microtype} 
+% Use multiple columns
+\usepackage{multicol}
+% Display two figures next to each other
+\usepackage{subfigure}
+\usepackage[subfigure]{tocloft}
+% Display list of Equations
+\usepackage{tocloft}
+% Insert empty pages
+\usepackage{afterpage}
+% Configure style aspects of the document
+\usepackage{caption}            % To configure the captions
+\usepackage{siunitx}            % For SI units
+\usepackage{graphicx}           % To include graphics
+\usepackage[dvipsnames]{xcolor} % To configure colors
+\usepackage{fancyhdr}           % To configure the header and footer
+\pagestyle{fancy}               % Use a fancy header style
+\fancyhf{}                      % Set the header format
+\fancyheadoffset{0.0 cm}        % Set the header offset
+\lhead{\tfm}                    % Set the header right-side contents
+\rhead{}                   % Set the header left-side contents
+\cfoot{\thepage}                % Set the footer page number
+
+% Create a custom command shortcut
+\renewcommand{\arraystretch}{1.3} % Modify the vertical spacing of the tables
+\raggedbottom                     % Modify the vertical spacing of enumerated environments
+
+% Set empty page 
+\newcommand\blankpage{%
+    \null
+    \thispagestyle{empty}%
+    \addtocounter{page}{-1}%
+    \newpage
+}
+
+% Set the title format
+\title {
+	\vspace*{1.0 cm}
+	\Large\textbf{\uppercase{\university}} \\
+	\vspace*{0.5 cm}
+	\large\textbf{\uppercase{\school}} \\
+	\vspace*{1 cm}
+	\large\text{\uppercase{\degree}} \\
+	Master's Programme in Digital Innovation: Data Science \\
+	\vspace*{1 cm}
+	\large\text{Trabajo Fin de Máster} \\
+	\large\text{\uppercase{\tfm}} \\
+	\vspace*{1.0 cm}
+	\large\textbf{Monitorización de Gateways en Arquitecturas de Microservicios Orientadas por Dominios utilizando técnicas de Big Data} \\
+	\vspace*{0.5 cm}
+	\LARGE\textbf{\uppercase{\name}} \\
+}
+
+% Set the author format
+\author {
+	\normalsize
+	\begin{tabbing}
+        \hspace*{0.4\linewidth} \= \hspace*{0.5\linewidth} \= \kill
+    	\> Author: \' \textbf{\me} \\[0.25cm]
+    	\> Supervisor (UPM): \' \textbf{\supervisor} \\
+    	\> Supervisor (Aalto University): \' \textbf{Hong-Linh Truong} \\[0.25cm]
+    	\> Company advisor: \' \textbf{Teemu Sidoroff} \\
+    \end{tabbing}
+    
+    \vspace{2cm}
+}
+
+% Set the date format
+\date { 
+    Madrid, Marzo / March 2022
+}
+
+% A macro to print the title
+\makeatletter
+\def\printtitle{{\centering\@title\par}}
+\makeatother
+
+% A macro to print the author
+\makeatletter
+\def\printauthor{{\centering\large\@author}}
+\makeatother
+
+% A macro to print the date
+\makeatletter
+\def\printdate{{\centering\@date}}
+\makeatother
+
+\colorlet{punct}{red!60!black}
+\definecolor{background}{HTML}{EEEEEE}
+\definecolor{delim}{RGB}{20,105,176}
+\colorlet{numb}{magenta!60!black}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{ltgray}{rgb}{0.5,0.5,0.5}
+
+\lstdefinelanguage{json}{
+    basicstyle=\normalfont\ttfamily,
+    numbers=left,
+    numberstyle=\scriptsize,
+    stepnumber=1,
+    numbersep=8pt,
+    showstringspaces=false,
+    breaklines=true,
+    frame=lines,
+    backgroundcolor=\color{background},
+    literate=
+     *{0}{{{\color{numb}0}}}{1}
+      {1}{{{\color{numb}1}}}{1}
+      {2}{{{\color{numb}2}}}{1}
+      {3}{{{\color{numb}3}}}{1}
+      {4}{{{\color{numb}4}}}{1}
+      {5}{{{\color{numb}5}}}{1}
+      {6}{{{\color{numb}6}}}{1}
+      {7}{{{\color{numb}7}}}{1}
+      {8}{{{\color{numb}8}}}{1}
+      {9}{{{\color{numb}9}}}{1}
+      {:}{{{\color{punct}{:}}}}{1}
+      {,}{{{\color{punct}{,}}}}{1}
+      {\{}{{{\color{delim}{\{}}}}{1}
+      {\}}{{{\color{delim}{\}}}}}{1}
+      {[}{{{\color{delim}{[}}}}{1}
+      {]}{{{\color{delim}{]}}}}{1},
+}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstset{
+  	backgroundcolor=\color{background},
+  	basicstyle=\normalfont\ttfamily,
+  	breakatwhitespace=false,
+  	breaklines=true,
+  	captionpos=b,
+  	commentstyle=\color{dkgreen},
+  	deletekeywords={...},
+  	escapeinside={\%*}{*)},
+  	extendedchars=true,
+  	frame=single,
+  	keepspaces=true,
+  	keywordstyle=\color{blue},
+  	language=SQL,
+  	morekeywords={*,modify,MODIFY,...},
+  	numbers=left,
+  	numbersep=15pt,
+  	numberstyle=\tiny,
+  	rulecolor=\color{ltgray},
+  	showspaces=false,
+  	showstringspaces=false, 
+  	showtabs=false,
+  	stepnumber=1,
+  	tabsize=4,
+  	title=\lstname
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Start the document
+\begin{document}
+    % Include the cover
+    \input{cover.tex}
+    
+    \thispagestyle{empty}%
+      \vspace*{3.5mm}%
+      Copyright \noexpand\literal©\ \number\year\ \me\par%
+      \clearpage%
+    
+    % Include the different sections
+    
+    \topskip0pt
+    \vspace*{15em}
+    
+    \begin{center}
+        \section*{Abstract}
+        \input{../common/abstract.tex}
+    \end{center}
+    \phantomsection
+    \addcontentsline{toc}{section}{Abstract}
+    \newpage
+    
+    \vspace*{10em}
+    \section*{Acknowledgement}
+    \input{../common/acknowledgements.tex}
+    \phantomsection
+    \addcontentsline{toc}{section}{Acknowledgement}
+    
+    \newpage
+    
+    \phantomsection%
+    \addcontentsline{toc}{section}{\contentsname}%
+    \tableofcontents%
+    \newpage%
+    
+    %% Symbols and abbreviations
+    \section*{Abbreviations}
+    
+    \input{../common/abbreviations.tex}
+    
+    \newpage
+    \input{../main.tex}
+\end{document}
+% Finish the document
