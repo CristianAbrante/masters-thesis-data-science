@@ -1,0 +1,72 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb,amsfonts, fancyhdr, color, comment, graphicx, environ}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage[shortlabels]{enumitem}
+\usepackage{indentfirst}
+\usepackage{hyperref}
+\renewcommand{\footrulewidth}{0.8pt}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=blue,
+}
+
+
+\pagestyle{fancy}
+
+\lhead{Cristian Abrante}
+\rhead{Master's thesis internship proposal \& report} 
+\rfoot{EIT Digital Master School}
+
+\begin{document}
+\input{cover-page}
+
+\section{Internship proposal}
+
+This Master's thesis is developed in the context of the online advertisement networks, more specifically in the field of game advertisement. It will be held in the company Unity Technologies, one of the industry-leading businesses for game development, and in the context of Unity Ads, one of the most prominent advertisement networks in the current landscape.\\
+
+Over the last decade, many companies and organizations have adopted microservices as the software architecture pattern to organize their software system. When those microservices increase dramatically, there are some problems associated with tracing errors and managing common responsibilities. In that sense, many companies adopted a Domain-Oriented Microservices architecture pattern, where the microservices of a different business domain are separated and can be accessed only through a single gateway. The errors that are handled at the gateway level are interesting for other teams depending on it, but maybe they do not have direct visibility on them.\\
+
+This thesis has two outcomes; on the one hand, it introduces an extensible format for defining the high-level responsibilities that the gateway has to handle and the associated errors with those. On the other hand, it also describes the data pipeline introduced for gathering those errors at the gateway level and storing them efficiently to be visualized conveniently afterward. This tool is tested in the context of a multinational company on a gateway that handles thousands of requests per second. Apart from that, a comparison has been established with the most common open-source gateway technologies, showing that they do not provide by default enough cross-team visibility on the events that we are trying to gather.\\
+
+From May 2021 to August 2021, the internship took place in the Advertiser Public APIs team in the Unity Helsinki office. Apart from developing this Master's thesis, the internship's primary responsibility consisted of developing a series of Public APIs that will help advertisers manage their advertisement campaigns programmatically.
+
+\clearpage
+\section{Master's Thesis Internship Report}
+
+\subsection{Acknowledgments}
+
+First of all, I would like to thank Unity Technologies Finland for giving me the opportunity of joining such a fantastic company. I also would like to thank my company advisor Teemu Sidoroff, and my academic supervisor, Prof. Hong-Linh Truong. Finally, I would like to mention my utmost gratitude to the public institutions that participate in this Master's degree: EIT Digital, Aalto University, and the Technical University of Madrid. These institutions make it possible for people with not so privileged backgrounds to strive for better opportunities.
+
+\subsection{Industrial context}
+
+To understand UnityAds (the Unity advertisement network) correctly, first, it is essential to clarify the concept of Online Advertising Network. An advertising network is a type of business or service whose purpose is to connect advertisers, who are individuals who want to display advertisements for the products they intend to sell, with publishers, who are individuals who can provide space to place such advertisements, and who usually reach a certain level of audience. The original definition of advertisement network was tied to newspapers, magazines, and television, but it has been extended to online services in recent years. In that sense, UnityAds is an ad-hoc advertisement network for the game industry. In a nutshell, UnityAds allows game developers to show ads about their games in other games and place advertisements of other games in theirs.
+
+\subsection{Thesis topic and main results}
+
+This thesis proposes a monitoring framework for a Domain-Oriented Microservice Architecture gateway that allows stakeholders to observe the gateway's errors when performing its high-level operations. Particularly, the introduced framework offers the following characteristics:
+
+\begin{itemize}
+    \item Definition of an extensible error format that matches the high-level responsibilities that the DOMA gateway has to fulfill for every endpoint it exposes.
+    \item Creation of a cloud-agnostic data pipeline that transmits the errors from the emission on the gateway to the data storage.
+    \item Creation of a visualization dashboard that will retrieve the error data and visualize it in a convenient structure.
+\end{itemize}
+
+A prototype is created for the particular case of the Unity Services Gateway, the DOMA gateway for Unity technologies, a highly-available service that handles thousands of requests per second and that is managed by a growing team of engineers located in different parts of the world. Additionally, an evaluation step was performed, first by doing unit testing on the implemented functions and then by creating a script that ensures that the data flows correctly through the pipeline.
+
+\subsection{Impact}
+
+In recent years, there has been an increase in the adoption of microservices architectures by extensive and well-established companies and small startups. On many of them, the amount and complexity of their architecture are so significant that they had to adopt patterns like DOMA, creating a gateway that allows them to simplify the operations that they had spread across many microservices. This thesis aims to offer a framework for developing and monitoring the high-level errors that those gateways are producing and giving procedures on how to increase their visibility of them across different teams. From the point of view of the expected outcomes, especially from the stakeholder's point of view, it can be stated that this thesis matches the expectations. Before this research thesis and the implementation of the prototype, they were not able to easily access the gateway's information. After it, they could fulfill all the requirements, representing a critical operational benefit for the company.\\
+
+\vspace{15cm}
+
+Approved: \hrulefill \today
+
+\hspace*{0mm}\phantom{Approved: }Teemu Sidoroff
+
+\hspace*{0mm}\phantom{Approved: }Team Lead, Unity Technologies Finland Oy
+
+\end{document}
